@@ -28,6 +28,7 @@ public class ProductService {
 
     @Transactional
     public ResponseEntity<ProductResponseDto> addProduct(ProductRequestDto productRequestDto) {
+        //TODO: add localDateTime to product
         LocalDateTime localDateTime = LocalDateTime.now();
         Product product = productMapper.convertToEntity(productRequestDto);
         productRepository.save(product);

@@ -1,20 +1,15 @@
-package com.example.inventoryManagementRetail.model;
+package com.example.inventoryManagementRetail.dto.CategoryDto;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Table(name = "categories")
-@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Category {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class CategoryResponseDto {
     private Long id;
     private String name;
 }

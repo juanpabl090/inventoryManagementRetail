@@ -4,7 +4,6 @@ import com.example.inventoryManagementRetail.dto.ProductDto.ProductRequestDto;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductResponseDto;
 import com.example.inventoryManagementRetail.service.ProductService;
 import jakarta.validation.Valid;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +19,11 @@ public class ProductController {
         this.productService = productService;
     }
 
+    @GetMapping("/greeting")
+    public String greeting() {
+        return "Hello, World";
+    }
+
     @GetMapping("/all")
     public ResponseEntity<List<ProductResponseDto>> getAllProducts() {
         return productService.getAllProducts();
@@ -30,8 +34,8 @@ public class ProductController {
         return productService.getAllProductsById(id);
     }
 
-    @GetMapping("/allByName/{id}")
-    public ResponseEntity<List<ProductResponseDto>> getAllProductsByName(@Valid @PathVariable String name){
+    @GetMapping("/allByName/{name}")
+    public ResponseEntity<List<ProductResponseDto>> getAllProductsByName(@Valid @PathVariable String name) {
         return productService.getAllProductsByName(name);
     }
 
