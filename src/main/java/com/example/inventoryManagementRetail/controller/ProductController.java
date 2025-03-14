@@ -19,24 +19,9 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @GetMapping("/greeting")
-    public String greeting() {
-        return "Hello, World";
-    }
-
     @GetMapping("/all")
     public ResponseEntity<List<ProductResponseDto>> getAllProducts() {
         return productService.getAllProducts();
-    }
-
-    @GetMapping("/allById/{id}")
-    public ResponseEntity<List<ProductResponseDto>> getAllProductsById(@Valid @PathVariable Long id) {
-        return productService.getAllProductsById(id);
-    }
-
-    @GetMapping("/allByName/{name}")
-    public ResponseEntity<List<ProductResponseDto>> getAllProductsByName(@Valid @PathVariable String name) {
-        return productService.getAllProductsByName(name);
     }
 
     @PostMapping("/add")
@@ -45,22 +30,32 @@ public class ProductController {
     }
 
     @GetMapping("/getById/{id}")
-    public ResponseEntity<ProductResponseDto> getProductById(@Valid @PathVariable Long id) {
-        return productService.getProductByid(id);
+    public ResponseEntity<ProductResponseDto> getProductById(@PathVariable Long id) {
+        return productService.getProductById(id);
     }
 
     @GetMapping("/getByName/{name}")
-    public ResponseEntity<ProductResponseDto> getProductByName(@Valid @PathVariable String name) {
+    public ResponseEntity<ProductResponseDto> getProductByName(@PathVariable String name) {
         return productService.getProductByName(name);
     }
 
     @DeleteMapping("/deleteByName/{name}")
-    public ResponseEntity<?> deleteProductByName(@Valid @PathVariable String name) {
+    public ResponseEntity<?> deleteProductByName(@PathVariable String name) {
         return productService.deleteProductByName(name);
     }
 
     @DeleteMapping("/deleteById/{id}")
-    public ResponseEntity<?> deleteProductById(@Valid @PathVariable Long id) {
+    public ResponseEntity<?> deleteProductById(@PathVariable Long id) {
         return productService.deleteProductById(id);
+    }
+
+    @GetMapping("/getAllByCategory/{categoryId}")
+    public ResponseEntity<?> getAllProductsByCategory(@PathVariable Long categoryId) {
+        return productService.getAllProductsByCategory(categoryId);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ProductResponseDto> updateProductById(@PathVariable Long id, @Valid @RequestBody ProductRequestDto productRequestDto) {
+        return productService.updateProductById(id, productRequestDto);
     }
 }
