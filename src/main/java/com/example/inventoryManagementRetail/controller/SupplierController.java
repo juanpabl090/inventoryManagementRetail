@@ -2,41 +2,61 @@ package com.example.inventoryManagementRetail.controller;
 
 import com.example.inventoryManagementRetail.dto.SupplierDto.SupplierRequestDto;
 import com.example.inventoryManagementRetail.dto.SupplierDto.SupplierResponseDto;
-import com.example.inventoryManagementRetail.repository.SupplierRepository;
 import com.example.inventoryManagementRetail.service.SupplierService;
 import jakarta.validation.Valid;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/suppliers")
 public class SupplierController {
 
-    private final SupplierRepository supplierRepository;
+    private final SupplierService supplierService;
 
-    public SupplierController(SupplierRepository supplierRepository) {
-        this.supplierRepository = supplierRepository;
+    public SupplierController(SupplierService supplierService) {
+        this.supplierService = supplierService;
     }
 
-    public ResponseEntity<SupplierResponseDto> addSupplier(@Valid  SupplierRequestDto supplierRequestDto) {
-        return SupplierService.addSupplier();
+    @PostMapping("/add")
+    public ResponseEntity<SupplierResponseDto> addSupplier(@Valid @RequestBody SupplierRequestDto supplierRequestDto) {
+        return supplierService.addSupplier(supplierRequestDto);
     }
 
-    public ResponseEntity<SupplierResponseDto> updateSupplier(SupplierRequestDto supplierRequestDto) {
+    @PutMapping("/update/{id}")
+    public ResponseEntity<SupplierResponseDto> updateSupplierById(@PathVariable Long id, @Valid @RequestBody SupplierRequestDto supplierRequestDto) {
+        return supplierService.updateSupplierById(id, supplierRequestDto);
     }
 
-    public ResponseEntity<SupplierResponseDto> deleteSupplier(SupplierRequestDto supplierRequestDto) {
+    @PutMapping("/update/{name}")
+    public ResponseEntity<SupplierResponseDto> updateSupplierByName(@PathVariable String name, @Valid @RequestBody SupplierRequestDto supplierRequestDto) {
+        return supplierService.updateSupplierByName(name, supplierRequestDto);
     }
 
-    public ResponseEntity<SupplierResponseDto> getallSupplier(SupplierRequestDto supplierRequestDto) {
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteSupplierById(@PathVariable Long id) {
+        return supplierService.deleteSupplierById(id);
     }
 
-    public ResponseEntity<SupplierResponseDto> getByIdSupplier(SupplierRequestDto supplierRequestDto) {
+    @DeleteMapping("/delete/{name}")
+    public ResponseEntity<Void> deleteSupplierByName(@PathVariable String name) {
+        return supplierService.deleteSupplierByName(name);
     }
 
-    public ResponseEntity<SupplierResponseDto> getByNameSupplier(SupplierRequestDto supplierRequestDto) {
+    @GetMapping("/getAll")
+    public ResponseEntity<List<SupplierResponseDto>> getAllSupplier() {
+        return supplierService.getAllSupplier();
+    }
+
+    @GetMapping("/getById/{id}")
+    public ResponseEntity<SupplierResponseDto> getSupplierById(@PathVariable Long id) {
+        return supplierService.getSupplierById(id);
+    }
+
+    @GetMapping("/getByName/{name}")
+    public ResponseEntity<SupplierResponseDto> getSupplierByName(@PathVariable String name) {
+        return supplierService.getSupplierByName(name);
     }
 
 }
