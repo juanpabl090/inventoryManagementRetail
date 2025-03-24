@@ -44,17 +44,17 @@ public class SupplierController {
         return supplierService.deleteSupplierByName(name);
     }
 
-    @GetMapping("/getAll")
+    @GetMapping("/get")
     public ResponseEntity<List<SupplierResponseDto>> getAllSupplier() {
         return supplierService.getAllSupplier();
     }
 
-    @GetMapping("/getById/{id}")
+    @GetMapping("/get/{id}")
     public ResponseEntity<SupplierResponseDto> getSupplierById(@PathVariable Long id) {
         return supplierService.getSupplierById(id);
     }
 
-    @GetMapping("/getByName/{name}")
+    @GetMapping("/get/{name}")
     public ResponseEntity<SupplierResponseDto> getSupplierByName(@PathVariable String name) {
         return supplierService.getSupplierByName(name);
     }

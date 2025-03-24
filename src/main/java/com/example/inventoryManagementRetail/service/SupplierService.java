@@ -103,6 +103,7 @@ public class SupplierService {
                 log.info("deleteSupplierById: Supplier with id: {} not found", id);
                 throw new ResourceNotFoundException("Supplier with id: " + id + " not found");
             }
+            supplierRepository.deleteById(id);
             log.info("deleteSupplierById: Product deleted successfully!");
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (DataAccessException e) {

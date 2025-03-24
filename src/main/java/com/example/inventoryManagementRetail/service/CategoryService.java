@@ -2,7 +2,6 @@ package com.example.inventoryManagementRetail.service;
 
 import com.example.inventoryManagementRetail.dto.CategoryDto.CategoryRequestDto;
 import com.example.inventoryManagementRetail.dto.CategoryDto.CategoryResponseDto;
-import com.example.inventoryManagementRetail.exception.BadRequestException;
 import com.example.inventoryManagementRetail.exception.DuplicateResourceException;
 import com.example.inventoryManagementRetail.exception.GenericException;
 import com.example.inventoryManagementRetail.exception.ResourceNotFoundException;
@@ -50,15 +49,12 @@ public class CategoryService {
     }
 
     @Transactional
-    public ResponseEntity<CategoryResponseDto> updateCategory(CategoryRequestDto categoryRequestDto) {
-        if (categoryRequestDto == null) {
-            throw new BadRequestException("Body of the request empty or invalid");
-        }
-        Category category = categoryRepository.findById(categoryRequestDto.getId()).orElseThrow(() -> new ResourceNotFoundException("Category not found!"));
+    public ResponseEntity<CategoryResponseDto> updateCategoryById(Long id, CategoryRequestDto categoryRequestDto) {
         try {
+            Category category = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category with id: " + id + " not found"));
             category.setName(categoryRequestDto.getName());
             categoryRepository.save(category);
-            log.info("Category updated successfully");
+            log.info("Category updated successfully", category);
             return ResponseEntity.status(HttpStatus.OK).body(categoryMapper.convertToDto(category));
         } catch (DataAccessException e) {
             log.error("Something went wrong while updating category", e);
@@ -67,16 +63,46 @@ public class CategoryService {
     }
 
     @Transactional
-    public ResponseEntity<CategoryResponseDto> deleteCategory(Long id) {
-        if (!categoryRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Category not found");
-        }
+    public ResponseEntity<CategoryResponseDto> updateCategoryByName(String name, CategoryRequestDto categoryRequestDto) {
         try {
+            Category category = categoryRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Category with name: " + name + " not found"));
+            category.setName(categoryRequestDto.getName());
+            categoryRepository.save(category);
+            log.info("Category updated successfully", category);
+            return ResponseEntity.status(HttpStatus.OK).body(categoryMapper.convertToDto(category));
+        } catch (DataAccessException e) {
+            log.info("updateSupplierByName: Something went wrong while updating the product: {}", categoryRequestDto != null ? categoryRequestDto.getName() : "unknown", e);
+            throw new RuntimeException("An error occurred while updating the product: " + (categoryRequestDto != null ? categoryRequestDto.getName() : "unknown"), e.getCause());
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<Void> deleteCategoryByid(Long id) {
+        try {
+            if (!categoryRepository.existsById(id)) {
+                throw new ResourceNotFoundException("Category not found");
+            }
             categoryRepository.deleteById(id);
             log.info("Category delete successfully");
             return ResponseEntity.noContent().build();
         } catch (DataAccessException e) {
             log.error("Something went wrong while deleting category", e);
+            throw new GenericException("An error occurred while deleting category");
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<Void> deleteCategoryByName(String name) {
+        try {
+            if (!categoryRepository.existsByName(name)) {
+                log.info("Category does not exist");
+                throw new ResourceNotFoundException("Category not found");
+            }
+            categoryRepository.deleteByName(name);
+            log.info("Category delete successfully");
+            return ResponseEntity.noContent().build();
+        } catch (DataAccessException e) {
+            log.info("Something went wrong while deleting category", e);
             throw new GenericException("An error occurred while deleting category");
         }
     }

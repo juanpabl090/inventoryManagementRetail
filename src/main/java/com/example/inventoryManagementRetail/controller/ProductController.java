@@ -19,7 +19,7 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @GetMapping("/getAll")
+    @GetMapping("/get")
     public ResponseEntity<List<ProductResponseDto>> getAllProducts() {
         return productService.getAllProducts();
     }
@@ -29,27 +29,27 @@ public class ProductController {
         return productService.addProduct(productRequestDto);
     }
 
-    @GetMapping("/getById/{id}")
+    @GetMapping("/get/{id}")
     public ResponseEntity<ProductResponseDto> getProductById(@PathVariable Long id) {
         return productService.getProductById(id);
     }
 
-    @GetMapping("/getByName/{name}")
+    @GetMapping("/get/{name}")
     public ResponseEntity<ProductResponseDto> getProductByName(@PathVariable String name) {
         return productService.getProductByName(name);
     }
 
-    @DeleteMapping("/deleteByName/{name}")
+    @DeleteMapping("/delete/{name}")
     public ResponseEntity<?> deleteProductByName(@PathVariable String name) {
         return productService.deleteProductByName(name);
     }
 
-    @DeleteMapping("/deleteById/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteProductById(@PathVariable Long id) {
         return productService.deleteProductById(id);
     }
 
-    @GetMapping("/getAllByCategory/{categoryId}")
+    @GetMapping("/getByCategory/{categoryId}")
     public ResponseEntity<?> getAllProductsByCategory(@PathVariable Long categoryId) {
         return productService.getAllProductsByCategory(categoryId);
     }
@@ -57,5 +57,10 @@ public class ProductController {
     @PutMapping("/update/{id}")
     public ResponseEntity<ProductResponseDto> updateProductById(@PathVariable Long id, @Valid @RequestBody ProductRequestDto productRequestDto) {
         return productService.updateProductById(id, productRequestDto);
+    }
+
+    @PutMapping("/update/{name}")
+    public ResponseEntity<ProductResponseDto> updateProductByName(@PathVariable String name, @Valid @RequestBody ProductRequestDto productRequestDto) {
+        return productService.updateProductByName(name, productRequestDto);
     }
 }

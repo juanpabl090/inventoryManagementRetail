@@ -111,7 +111,27 @@ public class ProductService {
             product.setStock(productRequestDto.getStock());
             product.setUpdated_date(LocalDateTime.now());
             Product productSaved = productRepository.save(product);
-            log.info("Product updated successfully: {}", productSaved.getId());
+            log.info("Product updated successfully: {}", productSaved);
+            return ResponseEntity.status(HttpStatus.OK).body(productMapper.convertToResponseDto(productSaved));
+        } catch (DataAccessException e) {
+            log.error("Something went wrong while updating the product: {}", productRequestDto != null ? productRequestDto.getName() : "unknown", e);
+            throw new RuntimeException("An error occurred while updating the product: " + (productRequestDto != null ? productRequestDto.getName() : "unknown"), e.getCause());
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<ProductResponseDto> updateProductByName(String name, ProductRequestDto productRequestDto) {
+        try {
+            Product product = productRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Product with name: " + name + " not found"));
+            product.setName(productRequestDto.getName());
+            product.setDescription(productRequestDto.getDescription());
+            product.setCategory(productRequestDto.getCategory());
+            product.setBuy_price(productRequestDto.getBuy_price());
+            product.setSale_price(productRequestDto.getSale_price());
+            product.setStock(productRequestDto.getStock());
+            product.setUpdated_date(LocalDateTime.now());
+            log.info("Product updated successfully: {}", product);
+            Product productSaved = productRepository.save(product);
             return ResponseEntity.status(HttpStatus.OK).body(productMapper.convertToResponseDto(productSaved));
         } catch (DataAccessException e) {
             log.error("Something went wrong while updating the product: {}", productRequestDto != null ? productRequestDto.getName() : "unknown", e);

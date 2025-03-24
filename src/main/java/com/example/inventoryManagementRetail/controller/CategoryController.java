@@ -3,6 +3,7 @@ package com.example.inventoryManagementRetail.controller;
 import com.example.inventoryManagementRetail.dto.CategoryDto.CategoryRequestDto;
 import com.example.inventoryManagementRetail.dto.CategoryDto.CategoryResponseDto;
 import com.example.inventoryManagementRetail.service.CategoryService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,27 +25,37 @@ public class CategoryController {
         return categoryService.addCategory(categoryRequestDto);
     }
 
-    @PutMapping("/getById")
-    public ResponseEntity<CategoryResponseDto> updateCategory(@Valid @RequestBody CategoryRequestDto categoryRequestDto) {
-        return categoryService.updateCategory(categoryRequestDto);
+    @PutMapping("/update/{id}")
+    public ResponseEntity<CategoryResponseDto> updateCategoryById(@PathVariable Long id, @Valid @RequestBody CategoryRequestDto categoryRequestDto) {
+        return categoryService.updateCategoryById(id, categoryRequestDto);
     }
 
-    @DeleteMapping("/deleteById/{id}")
-    public ResponseEntity<CategoryResponseDto> deleteCategory(@PathVariable Long id) {
-        return categoryService.deleteCategory(id);
+    @PutMapping("/update/{name}")
+    public ResponseEntity<CategoryResponseDto> updateCategoryByName(@PathVariable String name, @RequestBody CategoryRequestDto categoryRequestDto) {
+        return categoryService.updateCategoryByName(name, categoryRequestDto);
     }
 
-    @GetMapping("/getAll")
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteCategoryByid(@PathVariable Long id) {
+        return categoryService.deleteCategoryByid(id);
+    }
+
+    @DeleteMapping("/delete/{name}")
+    public ResponseEntity<Void> deleteCategoryByName(@PathVariable String name) {
+        return categoryService.deleteCategoryByName(name);
+    }
+
+    @GetMapping("/get")
     public ResponseEntity<List<CategoryResponseDto>> getAllCategories() {
         return categoryService.getAllCategories();
     }
 
-    @GetMapping("/getByName/{name}")
+    @GetMapping("/get/{name}")
     public ResponseEntity<CategoryResponseDto> getCategoryByName(@PathVariable String name) {
         return categoryService.getCategoryByName(name);
     }
 
-    @GetMapping("/getById/{id}")
+    @GetMapping("/get/{id}")
     public ResponseEntity<CategoryResponseDto> getCategoryById(@PathVariable Long id) {
         return categoryService.getCategoryById(id);
     }
