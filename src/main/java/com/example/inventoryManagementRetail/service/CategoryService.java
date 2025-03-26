@@ -22,7 +22,6 @@ import java.util.List;
 @Slf4j
 public class CategoryService {
 
-    //TODO: Continue with the implementation of the CategoryService class
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 

@@ -2,6 +2,7 @@ package com.example.inventoryManagementRetail.service;
 
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductRequestDto;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductResponseDto;
+import com.example.inventoryManagementRetail.exception.DuplicateResourceException;
 import com.example.inventoryManagementRetail.exception.ResourceNotFoundException;
 import com.example.inventoryManagementRetail.mapper.ProductMapper;
 import com.example.inventoryManagementRetail.model.Product;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,12 +33,18 @@ public class ProductService {
     @Transactional
     public ResponseEntity<ProductResponseDto> addProduct(ProductRequestDto productRequestDto) {
         try {
+            if (productRepository.existsByName(productRequestDto.getName())) {
+                throw new DuplicateResourceException("Product with name: " + productRequestDto.getName() + " already exists");
+            }
             Product product = productMapper.convertToEntity(productRequestDto);
-            product.setCreated_date(LocalDateTime.now());
-            product.setUpdated_date(LocalDateTime.now());
+            product.setCreated_date(LocalDateTime.now(ZoneId.of("UTC")));
+            product.setUpdated_date(LocalDateTime.now(ZoneId.of("UTC")));
             productRepository.save(product);
             log.info("Product added successfully!");
             return ResponseEntity.status(HttpStatus.CREATED).body(productMapper.convertToResponseDto(product));
+        } catch (DuplicateResourceException e) {
+            log.error("Something went wrong while checking if product exists by name: {}", productRequestDto.getName());
+            throw e;
         } catch (DataAccessException e) {
             log.error("Something went wrong while saving the product", e);
             throw new RuntimeException("An error occurred while saving the product", e.getCause());

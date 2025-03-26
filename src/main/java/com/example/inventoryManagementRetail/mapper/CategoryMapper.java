@@ -10,13 +10,13 @@ public class CategoryMapper {
 
     public CategoryResponseDto convertToDto(Category category) {
         return CategoryResponseDto.builder()
+                .id(category.getId())
                 .name(category.getName())
                 .build();
     }
 
     public Category convertToEntity(CategoryRequestDto categoryRequestDto) {
         return Category.builder()
-                .id(categoryRequestDto.getId())
                 .name(categoryRequestDto.getName())
                 .build();
     }
