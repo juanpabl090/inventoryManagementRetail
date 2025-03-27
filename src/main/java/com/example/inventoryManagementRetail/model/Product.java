@@ -36,5 +36,5 @@ public class Product {
     private Supplier supplier;
     @ManyToOne
     @JoinColumn(name = "product_type_id")
-    private Product_type product_type;
+    private ProductType product_type;
 }

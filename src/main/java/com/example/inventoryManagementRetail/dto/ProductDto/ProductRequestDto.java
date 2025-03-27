@@ -1,7 +1,7 @@
 package com.example.inventoryManagementRetail.dto.ProductDto;
 
 import com.example.inventoryManagementRetail.model.Category;
-import com.example.inventoryManagementRetail.model.Product_type;
+import com.example.inventoryManagementRetail.model.ProductType;
 import com.example.inventoryManagementRetail.model.Supplier;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -45,16 +45,11 @@ public class ProductRequestDto {
     @Min(value = 0, message = "Stock must be greater than 0")
     @PositiveOrZero(message = "Stock must be positive")
     private Long stock;
-
-    @NotNull(message = "Supplier cannot be null")
     private LocalDateTime created_date;
-
-    @NotNull(message = "Supplier cannot be null")
     private LocalDateTime updated_date;
-
     @NotNull(message = "Supplier cannot be null")
     private Supplier supplier;
 
     @NotNull(message = "Product type cannot be null")
-    private Product_type product_type;
+    private ProductType product_type;
 }
