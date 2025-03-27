@@ -21,20 +21,22 @@ public class Product {
     private Long id;
     private String name;
     private String description;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
-    @Column(precision = 8, scale = 2)
-    private BigDecimal buy_price;
-    @Column(precision = 8, scale = 2)
-    private BigDecimal sale_price;
+    @Column(precision = 8, scale = 2, name = "buy_price")
+    private BigDecimal buyPrice;
+    @Column(precision = 8, scale = 2, name = "sale_price")
+    private BigDecimal salePrice;
     private Long stock;
-    private LocalDateTime created_date;
-    private LocalDateTime updated_date;
-    @ManyToOne
+    @Column(name = "created_date")
+    private LocalDateTime createdDate;
+    @Column(name = "updated_date")
+    private LocalDateTime updatedDate;
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplier_id")
     private Supplier supplier;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_type_id")
-    private ProductType product_type;
+    private ProductType productType;
 }

@@ -32,20 +32,22 @@ public class ProductTypeService {
         try {
             if (productTypeRepository.existsByName(productTypeRequestDto.getName())) {
                 log.error("ProductType with name is already exist: {}", productTypeRequestDto.getName());
+                throw new DuplicateResourceException("ProductType with name" + productTypeRequestDto.getName() + " already exist");
             }
             ProductType productType = productTypeMapper.convertDtoToEntity(productTypeRequestDto);
             ProductType productTypeSaved = productTypeRepository.save(productType);
-            log.info("ProductType added successfully!");
+            log.info("ProductType added successfully: {}", productTypeSaved);
             return ResponseEntity.status(HttpStatus.CREATED).body(productTypeMapper.convertEntityToDto(productTypeSaved));
         } catch (DuplicateResourceException e) {
-            throw new DuplicateResourceException("ProductType with name is already exist");
+            log.error("Something went wrong while checking if product type exists by name: {}", productTypeRequestDto.getName());
+            throw e;
         } catch (DataAccessException e) {
             log.error("Something went wrong while adding the product", e);
             throw new RuntimeException("An error occurred while adding the product", e.getCause());
         }
     }
 
-    public ResponseEntity<List<ProductType>> getAllProductType() {
+    public ResponseEntity<List<ProductTypeResponseDto>> getAllProductType() {
         try {
             List<ProductType> productTypeList = productTypeRepository.findAll();
             if (productTypeList.isEmpty()) {
@@ -53,7 +55,8 @@ public class ProductTypeService {
                 return ResponseEntity.status(HttpStatus.OK).body(Collections.emptyList());
             }
             List<ProductTypeResponseDto> productTypeResponseDtos = productTypeList.stream().map(productTypeMapper::convertEntityToDto).toList();
-            return ResponseEntity.status(HttpStatus.OK).body(productTypeList);
+            log.info("Product types retrieved successfully: {}", productTypeResponseDtos);
+            return ResponseEntity.status(HttpStatus.OK).body(productTypeResponseDtos);
         } catch (DataAccessException e) {
             log.error("Something went wrong while fetching all product types", e);
             throw new RuntimeException("An error occurred while fetching all product types", e);
@@ -87,11 +90,11 @@ public class ProductTypeService {
         try {
             ProductType productType = productTypeRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product type not found"));
             productTypeRepository.delete(productType);
-            log.info("Product type deleted by id successfully: {}", id);
+            log.info("Product type deleted by id successfully: {}", productType);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (DataAccessException e) {
-            log.error("Something went wrong while deleting the product type", e);
-            throw new RuntimeException("An error occurred while deleting the product type", e);
+            log.error("Something went wrong while deleting the product type by id: {}", id, e);
+            throw new RuntimeException("An error occurred while deleting the product type " + id, e);
         }
     }
 
@@ -99,11 +102,11 @@ public class ProductTypeService {
         try {
             ProductType productType = productTypeRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Product type not found"));
             productTypeRepository.delete(productType);
-            log.info("Product type deleted by name successfully: {}", name);
+            log.info("Product type deleted by name successfully: {}", productType);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (DataAccessException e) {
-            log.error("Something went wrong while deleting the product type", e);
-            throw new RuntimeException("An error occurred while deleting the product type", e);
+            log.error("Something went wrong while deleting the product type by name: {}", name, e);
+            throw new RuntimeException("An error occurred while deleting the product type " + name, e);
         }
 
     }
@@ -116,8 +119,8 @@ public class ProductTypeService {
             log.info("Product type updated successfully: {}", productType);
             return ResponseEntity.status(HttpStatus.OK).body(productTypeMapper.convertEntityToDto(productTypeSaved));
         } catch (DataAccessException e) {
-            log.error("Something went wrong while updating the product type", e);
-            throw new RuntimeException("An error occurred while updating the product type", e.getCause());
+            log.error("Something went wrong while updating the product type by id: {}", productTypeRequestDto != null ? productTypeRequestDto.getName() : "unknown", e);
+            throw new RuntimeException("An error occurred while updating the product type " + id, e.getCause());
         }
     }
 
@@ -126,10 +129,11 @@ public class ProductTypeService {
             ProductType productType = productTypeRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Product type not found"));
             productType.setName(productTypeRequestDto.getName());
             ProductType productTypeSaved = productTypeRepository.save(productType);
+            log.info("Product type updated by name successfully: {}", productTypeSaved);
             return ResponseEntity.status(HttpStatus.OK).body(productTypeMapper.convertEntityToDto(productTypeSaved));
         } catch (DataAccessException e) {
-            log.error("Something went wrong while updating the product type", e);
-            throw new RuntimeException("An error occurred while updating the product type", e.getCause());
+            log.error("Something went wrong while updating the product type by name: {}", productTypeRequestDto != null ? productTypeRequestDto.getName() : "unknown", e);
+            throw new RuntimeException("An error occurred while updating the product type " + name, e.getCause());
         }
     }
 }

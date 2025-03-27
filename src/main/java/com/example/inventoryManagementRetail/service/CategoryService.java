@@ -32,18 +32,20 @@ public class CategoryService {
 
     @Transactional
     public ResponseEntity<CategoryResponseDto> addCategory(CategoryRequestDto categoryRequestDto) {
-        Category category;
         if (categoryRepository.existsByName(categoryRequestDto.getName())) {
             throw new DuplicateResourceException("Category with the name '" + categoryRequestDto.getName() + "' is already exists");
         }
         try {
-            category = categoryMapper.convertToEntity(categoryRequestDto);
-            categoryRepository.save(category);
-            log.info("Category added successfully!");
-            return ResponseEntity.status(HttpStatus.CREATED).body(categoryMapper.convertToDto(category));
+            Category category = categoryMapper.convertToEntity(categoryRequestDto);
+            Category categorySaved = categoryRepository.save(category);
+            log.info("Category added successfully: {}", categorySaved);
+            return ResponseEntity.status(HttpStatus.CREATED).body(categoryMapper.convertToDto(categorySaved));
+        } catch (DuplicateResourceException e) {
+            log.error("Something went wrong while checking if category exists by name: {}", categoryRequestDto.getName());
+            throw e;
         } catch (DataAccessException e) {
-            log.error("Something went wrong while saving the category: ", e);
-            throw new GenericException("An error occurred while saving the category: " + categoryRequestDto.getName());
+            log.error("Something went wrong while saving the category: {}: ", categoryRequestDto, e);
+            throw new RuntimeException("An error occurred while saving the category", e.getCause());
         }
     }
 
@@ -53,10 +55,10 @@ public class CategoryService {
             Category category = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category with id: " + id + " not found"));
             category.setName(categoryRequestDto.getName());
             categoryRepository.save(category);
-            log.info("Category updated successfully", category);
+            log.info("Category updated by id successfully: {}", category);
             return ResponseEntity.status(HttpStatus.OK).body(categoryMapper.convertToDto(category));
         } catch (DataAccessException e) {
-            log.error("Something went wrong while updating category", e);
+            log.error("Something went wrong while updating the product by id: {}", categoryRequestDto != null ? categoryRequestDto : "unknown", e);
             throw new GenericException("An error occurred while updating category");
         }
     }
@@ -67,10 +69,10 @@ public class CategoryService {
             Category category = categoryRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Category with name: " + name + " not found"));
             category.setName(categoryRequestDto.getName());
             categoryRepository.save(category);
-            log.info("Category updated successfully", category);
+            log.info("Category updated by name successfully: {}", categoryRequestDto);
             return ResponseEntity.status(HttpStatus.OK).body(categoryMapper.convertToDto(category));
         } catch (DataAccessException e) {
-            log.info("updateSupplierByName: Something went wrong while updating the product: {}", categoryRequestDto != null ? categoryRequestDto.getName() : "unknown", e);
+            log.info("updateSupplierByName: Something went wrong while updating the product by name: {}", categoryRequestDto != null ? categoryRequestDto : "unknown", e);
             throw new RuntimeException("An error occurred while updating the product: " + (categoryRequestDto != null ? categoryRequestDto.getName() : "unknown"), e.getCause());
         }
     }
@@ -82,10 +84,10 @@ public class CategoryService {
                 throw new ResourceNotFoundException("Category not found");
             }
             categoryRepository.deleteById(id);
-            log.info("Category delete successfully");
+            log.info("Category delete By id successfully: {}", id);
             return ResponseEntity.noContent().build();
         } catch (DataAccessException e) {
-            log.error("Something went wrong while deleting category", e);
+            log.error("Something went wrong while deleting category by id: {}", id, e);
             throw new GenericException("An error occurred while deleting category");
         }
     }
@@ -98,10 +100,10 @@ public class CategoryService {
                 throw new ResourceNotFoundException("Category not found");
             }
             categoryRepository.deleteByName(name);
-            log.info("Category delete successfully");
+            log.info("Category delete by name successfully: {}", name);
             return ResponseEntity.noContent().build();
         } catch (DataAccessException e) {
-            log.info("Something went wrong while deleting category", e);
+            log.info("Something went wrong while deleting category by name: {}", name, e);
             throw new GenericException("An error occurred while deleting category");
         }
     }
@@ -113,7 +115,7 @@ public class CategoryService {
                 return ResponseEntity.ok(Collections.emptyList());
             }
             List<CategoryResponseDto> categoryResponseDtos = categories.stream().map(categoryMapper::convertToDto).toList();
-            log.info("Categories retrieved successfully");
+            log.info("Categories retrieved successfully: {}", categoryResponseDtos);
             return ResponseEntity.status(HttpStatus.OK).body(categoryResponseDtos);
         } catch (DataAccessException e) {
             log.error("Something went wrong while retrieved category", e);
@@ -123,24 +125,22 @@ public class CategoryService {
 
     public ResponseEntity<CategoryResponseDto> getCategoryByName(String name) {
         try {
-            Category category = categoryRepository.findByName(name)
-                    .orElseThrow(() -> new ResourceNotFoundException("Category with name: " + name + " not found"));
-            log.info("Category got by name successfully");
+            Category category = categoryRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Category with name: " + name + " not found"));
+            log.info("Category got by name successfully: {}", category);
             return ResponseEntity.status(HttpStatus.FOUND).body(categoryMapper.convertToDto(category));
         } catch (DataAccessException e) {
-            log.error("Something went wrong while getting category by name", e);
+            log.error("Something went wrong while getting category by name: {}", name, e);
             throw new GenericException("An error occurred while getting category by name: " + name);
         }
     }
 
     public ResponseEntity<CategoryResponseDto> getCategoryById(Long id) {
         try {
-            Category category = categoryRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Category with id: " + id + " not found!"));
-            log.info("Category got by id successfully");
+            Category category = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category with id: " + id + " not found"));
+            log.info("Category got by id successfully: {}", category);
             return ResponseEntity.status(HttpStatus.FOUND).body(categoryMapper.convertToDto(category));
         } catch (DataAccessException e) {
-            log.error("Something went wrong while getting category by id", e);
+            log.error("Something went wrong while getting category by id: {}", id, e);
             throw new GenericException("An error occurred while getting category by id: " + id);
         }
     }

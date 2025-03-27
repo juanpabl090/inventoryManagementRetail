@@ -5,6 +5,7 @@ import com.example.inventoryManagementRetail.dto.ProductDto.ProductResponseDto;
 import com.example.inventoryManagementRetail.exception.DuplicateResourceException;
 import com.example.inventoryManagementRetail.exception.ResourceNotFoundException;
 import com.example.inventoryManagementRetail.mapper.ProductMapper;
+import com.example.inventoryManagementRetail.model.Category;
 import com.example.inventoryManagementRetail.model.Product;
 import com.example.inventoryManagementRetail.repository.ProductRepository;
 import jakarta.transaction.Transactional;
@@ -34,19 +35,20 @@ public class ProductService {
     public ResponseEntity<ProductResponseDto> addProduct(ProductRequestDto productRequestDto) {
         try {
             if (productRepository.existsByName(productRequestDto.getName())) {
+                log.error("Product with name is already exist: {}", productRequestDto.getName());
                 throw new DuplicateResourceException("Product with name: " + productRequestDto.getName() + " already exists");
             }
             Product product = productMapper.convertToEntity(productRequestDto);
-            product.setCreated_date(LocalDateTime.now(ZoneId.of("UTC")));
-            product.setUpdated_date(LocalDateTime.now(ZoneId.of("UTC")));
-            productRepository.save(product);
-            log.info("Product added successfully!");
-            return ResponseEntity.status(HttpStatus.CREATED).body(productMapper.convertToResponseDto(product));
+            product.setCreatedDate(LocalDateTime.now(ZoneId.of("UTC")));
+            product.setUpdatedDate(LocalDateTime.now(ZoneId.of("UTC")));
+            Product productSaved = productRepository.save(product);
+            log.info("Product added successfully: {}", product);
+            return ResponseEntity.status(HttpStatus.CREATED).body(productMapper.convertToResponseDto(productSaved));
         } catch (DuplicateResourceException e) {
-            log.error("Something went wrong while checking if product exists by name: {}", productRequestDto.getName());
+            log.error("Something went wrong while checking if product exists by name: {}", productRequestDto.getName(), e);
             throw e;
         } catch (DataAccessException e) {
-            log.error("Something went wrong while saving the product", e);
+            log.error("Something went wrong while saving the product: {}", productRequestDto, e);
             throw new RuntimeException("An error occurred while saving the product", e.getCause());
         }
     }
@@ -55,15 +57,15 @@ public class ProductService {
         try {
             List<Product> products = productRepository.findAll();
             if (products.isEmpty()) {
-                log.info("Empty list of products");
+                log.info("Empty list of products: {}", products);
                 return ResponseEntity.ok(Collections.emptyList());
             }
             List<ProductResponseDto> productDtos = products.stream().map(productMapper::convertToResponseDto).toList();
-            log.info("Products retrieved successfully!");
+            log.info("Products retrieved successfully: {}", productDtos);
             return ResponseEntity.status(HttpStatus.OK).body(productDtos);
         } catch (DataAccessException e) {
-            log.error("Something went wrong while getting the products", e.getCause());
-            throw new RuntimeException("An error occurred while getting the products", e.getCause());
+            log.error("Something went wrong while getting all the products", e);
+            throw new RuntimeException("An error occurred while getting the products", e);
         }
     }
 
@@ -87,23 +89,23 @@ public class ProductService {
                 })
                 .orElseGet(() -> {
                     log.info("Product with name: {} not found", name);
-                    throw new RuntimeException("Product with name: " + name + " not found");
+                    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
                 });
     }
 
     public ResponseEntity<List<ProductResponseDto>> getAllProductsByCategory(Long categoryId) {
         try {
             List<Product> productList = productRepository.getAllProductsByCategory(categoryId);
-            if (!productList.isEmpty()) {
-                List<ProductResponseDto> productListDto = productList.stream().map(productMapper::convertToResponseDto).toList();
-                log.info("Products list retrieved successfully by category: {}", categoryId);
-                return ResponseEntity.status(HttpStatus.OK).body(productListDto);
+            if (productList.isEmpty()) {
+                log.info("Products list retrieved successfully by category: {}", productList);
+                return ResponseEntity.ok(Collections.emptyList());
             }
-            log.info("Products list retrieved successfully by category: {}", categoryId);
-            return ResponseEntity.ok(Collections.emptyList());
+            List<ProductResponseDto> productListDto = productList.stream().map(productMapper::convertToResponseDto).toList();
+            log.info("Products list retrieved successfully by category: {}", productListDto);
+            return ResponseEntity.status(HttpStatus.OK).body(productListDto);
         } catch (DataAccessException e) {
-            log.error("Something went wrong while getting the products by category, {}", categoryId);
-            throw new RuntimeException("Something went wrong while getting the products by category", e.getCause());
+            log.error("Something went wrong while getting the products by category: {}", categoryId, e);
+            throw new RuntimeException("Something went wrong while getting the products by category: " + categoryId, e.getCause());
         }
     }
 
@@ -113,16 +115,16 @@ public class ProductService {
             Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product with id: " + id + " not found"));
             product.setName(productRequestDto.getName());
             product.setDescription(productRequestDto.getDescription());
-            product.setCategory(productRequestDto.getCategory());
-            product.setBuy_price(productRequestDto.getBuy_price());
-            product.setSale_price(productRequestDto.getSale_price());
+            product.setCategory(Category.builder().id(productRequestDto.getCategoryId()).build());
+            product.setBuyPrice(productRequestDto.getBuyPrice());
+            product.setSalePrice(productRequestDto.getSalePrice());
             product.setStock(productRequestDto.getStock());
-            product.setUpdated_date(LocalDateTime.now());
+            product.setUpdatedDate(LocalDateTime.now());
             Product productSaved = productRepository.save(product);
-            log.info("Product updated successfully: {}", productSaved);
+            log.info("Product updated by id successfully: {}", productSaved);
             return ResponseEntity.status(HttpStatus.OK).body(productMapper.convertToResponseDto(productSaved));
         } catch (DataAccessException e) {
-            log.error("Something went wrong while updating the product: {}", productRequestDto != null ? productRequestDto.getName() : "unknown", e);
+            log.error("Something went wrong while updating the product: {}", productRequestDto != null ? productRequestDto : "unknown", e);
             throw new RuntimeException("An error occurred while updating the product: " + (productRequestDto != null ? productRequestDto.getName() : "unknown"), e.getCause());
         }
     }
@@ -133,16 +135,16 @@ public class ProductService {
             Product product = productRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Product with name: " + name + " not found"));
             product.setName(productRequestDto.getName());
             product.setDescription(productRequestDto.getDescription());
-            product.setCategory(productRequestDto.getCategory());
-            product.setBuy_price(productRequestDto.getBuy_price());
-            product.setSale_price(productRequestDto.getSale_price());
+            product.setCategory(Category.builder().id(productRequestDto.getCategoryId()).build());
+            product.setBuyPrice(productRequestDto.getBuyPrice());
+            product.setSalePrice(productRequestDto.getSalePrice());
             product.setStock(productRequestDto.getStock());
-            product.setUpdated_date(LocalDateTime.now());
-            log.info("Product updated successfully: {}", product);
+            product.setUpdatedDate(LocalDateTime.now());
             Product productSaved = productRepository.save(product);
+            log.info("Product updated by name successfully: {}", productSaved);
             return ResponseEntity.status(HttpStatus.OK).body(productMapper.convertToResponseDto(productSaved));
         } catch (DataAccessException e) {
-            log.error("Something went wrong while updating the product: {}", productRequestDto != null ? productRequestDto.getName() : "unknown", e);
+            log.error("Something went wrong while updating the product: {}", productRequestDto != null ? productRequestDto : "unknown", e);
             throw new RuntimeException("An error occurred while updating the product: " + (productRequestDto != null ? productRequestDto.getName() : "unknown"), e.getCause());
         }
     }
@@ -150,12 +152,12 @@ public class ProductService {
     @Transactional
     public ResponseEntity<?> deleteProductByName(String name) {
         try {
-            Product product = productRepository.findByName(name)
-                    .orElseThrow(() -> new ResourceNotFoundException("Product with name: " + name + " not found"));
+            Product product = productRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Product with name: " + name + " not found"));
             productRepository.delete(product);
+            log.info("Product deleted by name successfully: {}", product);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (DataAccessException e) {
-            log.error("Something went wrong while deleting the product by name: {}", name);
+            log.error("Something went wrong while deleting the product by name: {}", name, e);
             throw new RuntimeException("An error occurred while deleting the product: " + name, e.getCause());
         }
     }
@@ -163,13 +165,12 @@ public class ProductService {
     @Transactional
     public ResponseEntity<?> deleteProductById(Long id) {
         try {
-            Product product = productRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Product with id: " + id + " not found"));
-            log.info("Product deleted successfully: {}", id);
+            Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product with id: " + id + " not found"));
+            log.info("Product deleted by id successfully: {}", product);
             productRepository.delete(product);
             return ResponseEntity.noContent().build();
         } catch (DataAccessException e) {
-            log.error("Something went wrong while deleting the product by id: {}", id);
+            log.error("Something went wrong while deleting the product by id: {}", id, e);
             throw new RuntimeException("An error occurred while deleting the product: " + id, e.getCause());
         }
     }

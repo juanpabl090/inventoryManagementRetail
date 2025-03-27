@@ -29,22 +29,22 @@ public class ProductController {
         return productService.addProduct(productRequestDto);
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/get/id/{id}")
     public ResponseEntity<ProductResponseDto> getProductById(@PathVariable Long id) {
         return productService.getProductById(id);
     }
 
-    @GetMapping("/get/{name}")
+    @GetMapping("/get/name/{name}")
     public ResponseEntity<ProductResponseDto> getProductByName(@PathVariable String name) {
         return productService.getProductByName(name);
     }
 
-    @DeleteMapping("/delete/{name}")
+    @DeleteMapping("/delete/name/{name}")
     public ResponseEntity<?> deleteProductByName(@PathVariable String name) {
         return productService.deleteProductByName(name);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/delete/id/{id}")
     public ResponseEntity<?> deleteProductById(@PathVariable Long id) {
         return productService.deleteProductById(id);
     }
@@ -54,12 +54,12 @@ public class ProductController {
         return productService.getAllProductsByCategory(categoryId);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/update/id/{id}")
     public ResponseEntity<ProductResponseDto> updateProductById(@PathVariable Long id, @Valid @RequestBody ProductRequestDto productRequestDto) {
         return productService.updateProductById(id, productRequestDto);
     }
 
-    @PutMapping("/update/{name}")
+    @PutMapping("/update/name/{name}")
     public ResponseEntity<ProductResponseDto> updateProductByName(@PathVariable String name, @Valid @RequestBody ProductRequestDto productRequestDto) {
         return productService.updateProductByName(name, productRequestDto);
     }

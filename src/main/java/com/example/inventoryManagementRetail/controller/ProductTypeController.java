@@ -26,36 +26,36 @@ public class ProductTypeController {
     }
 
     @GetMapping("/get")
-    public ResponseEntity<List<ProductType>> getAllProductType() {
+    public ResponseEntity<List<ProductTypeResponseDto>> getAllProductType() {
         return productTypeService.getAllProductType();
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/get/id/{id}")
     public ResponseEntity<ProductTypeResponseDto> getProductTypeById(@PathVariable Long id) {
         return productTypeService.getProductTypeById(id);
     }
 
-    @GetMapping("/add/{name}")
+    @GetMapping("/add/name/{name}")
     public ResponseEntity<ProductTypeResponseDto> getProductTypeByName(@PathVariable String name) {
         return productTypeService.getProductTypeByName(name);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/delete/id/{id}")
     public ResponseEntity<?> deleteProductTypeById(@PathVariable Long id) {
         return productTypeService.deleteProductTypeById(id);
     }
 
-    @DeleteMapping("/delete/{name}")
+    @DeleteMapping("/delete/name/{name}")
     public ResponseEntity<?> deleteProductTypeByName(@PathVariable String name) {
         return productTypeService.deleteProductTypeByName(name);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/update/id/{id}")
     public ResponseEntity<ProductTypeResponseDto> updateProductTypeById(@PathVariable Long id, @Valid @RequestBody ProductTypeRequestDto productTypeRequestDto) {
         return productTypeService.updateProductTypeById(id, productTypeRequestDto);
     }
 
-    @PutMapping("/update/{name}")
+    @PutMapping("/update/name/{name}")
     public ResponseEntity<ProductTypeResponseDto> updateProductTypeByName(@PathVariable String name, @Valid @RequestBody ProductTypeRequestDto productTypeRequestDto) {
         return productTypeService.updateProductTypeByName(name, productTypeRequestDto);
     }

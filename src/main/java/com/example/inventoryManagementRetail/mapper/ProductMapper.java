@@ -2,7 +2,10 @@ package com.example.inventoryManagementRetail.mapper;
 
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductRequestDto;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductResponseDto;
+import com.example.inventoryManagementRetail.model.Category;
 import com.example.inventoryManagementRetail.model.Product;
+import com.example.inventoryManagementRetail.model.ProductType;
+import com.example.inventoryManagementRetail.model.Supplier;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,14 +15,14 @@ public class ProductMapper {
         return Product.builder()
                 .name(productRequestDto.getName())
                 .description(productRequestDto.getDescription())
-                .category(productRequestDto.getCategory())
-                .buy_price(productRequestDto.getBuy_price())
-                .sale_price(productRequestDto.getSale_price())
+                .category(Category.builder().id(productRequestDto.getCategoryId()).build())
+                .buyPrice(productRequestDto.getBuyPrice())
+                .salePrice(productRequestDto.getSalePrice())
                 .stock(productRequestDto.getStock())
-                .created_date(productRequestDto.getCreated_date())
-                .updated_date(productRequestDto.getUpdated_date())
-                .supplier(productRequestDto.getSupplier())
-                .product_type(productRequestDto.getProduct_type())
+                .createdDate(productRequestDto.getCreatedDate())
+                .updatedDate(productRequestDto.getUpdatedDate())
+                .supplier(Supplier.builder().id(productRequestDto.getSupplierId()).build())
+                .productType(ProductType.builder().id(productRequestDto.getProductTypeId()).build())
                 .build();
     }
 
@@ -28,13 +31,14 @@ public class ProductMapper {
                 .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
-                .category(product.getCategory())
-                .buy_price(product.getBuy_price())
-                .sale_price(product.getSale_price())
+                .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
+                .salePrice(product.getSalePrice())
+                .buyPrice(product.getBuyPrice())
                 .stock(product.getStock())
-                .created_date(product.getCreated_date())
-                .updated_date(product.getUpdated_date())
-                .supplier(product.getSupplier())
+                .createdDate(product.getCreatedDate())
+                .updatedDate(product.getUpdatedDate())
+                .supplierId(product.getSupplier() != null ? product.getSupplier().getId() : null)
+                .productTypeId(product.getProductType() != null ? product.getProductType().getId() : null)
                 .build();
     }
 }

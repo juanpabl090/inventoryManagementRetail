@@ -25,22 +25,22 @@ public class CategoryController {
         return categoryService.addCategory(categoryRequestDto);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/update/id/{id}")
     public ResponseEntity<CategoryResponseDto> updateCategoryById(@PathVariable Long id, @Valid @RequestBody CategoryRequestDto categoryRequestDto) {
         return categoryService.updateCategoryById(id, categoryRequestDto);
     }
 
-    @PutMapping("/update/{name}")
+    @PutMapping("/update/name/{name}")
     public ResponseEntity<CategoryResponseDto> updateCategoryByName(@PathVariable String name, @RequestBody CategoryRequestDto categoryRequestDto) {
         return categoryService.updateCategoryByName(name, categoryRequestDto);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/delete/id/{id}")
     public ResponseEntity<Void> deleteCategoryByid(@PathVariable Long id) {
         return categoryService.deleteCategoryByid(id);
     }
 
-    @DeleteMapping("/delete/{name}")
+    @DeleteMapping("/delete/name/{name}")
     public ResponseEntity<Void> deleteCategoryByName(@PathVariable String name) {
         return categoryService.deleteCategoryByName(name);
     }
@@ -50,12 +50,12 @@ public class CategoryController {
         return categoryService.getAllCategories();
     }
 
-    @GetMapping("/get/{name}")
+    @GetMapping("/get/name/{name}")
     public ResponseEntity<CategoryResponseDto> getCategoryByName(@PathVariable String name) {
         return categoryService.getCategoryByName(name);
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/get/id/{id}")
     public ResponseEntity<CategoryResponseDto> getCategoryById(@PathVariable Long id) {
         return categoryService.getCategoryById(id);
     }
