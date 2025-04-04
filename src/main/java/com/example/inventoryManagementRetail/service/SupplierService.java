@@ -5,6 +5,7 @@ import com.example.inventoryManagementRetail.dto.SupplierDto.SupplierResponseDto
 import com.example.inventoryManagementRetail.exception.DuplicateResourceException;
 import com.example.inventoryManagementRetail.exception.ResourceNotFoundException;
 import com.example.inventoryManagementRetail.mapper.SupplierMapper;
+import com.example.inventoryManagementRetail.model.Contact;
 import com.example.inventoryManagementRetail.model.Supplier;
 import com.example.inventoryManagementRetail.repository.SupplierRepository;
 import jakarta.transaction.Transactional;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -126,7 +128,7 @@ public class SupplierService {
             List<Supplier> supplierList = supplierRepository.findAll();
             if (supplierList.isEmpty()) {
                 log.info("No suppliers found");
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(List.of());
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Collections.emptyList());
             }
             List<SupplierResponseDto> supplierResponseDtos = supplierList.stream().map(supplierMapper::convertToResponseDto).toList();
             log.info("Suppliers retrieved successfully: count={}", supplierResponseDtos.size());
@@ -160,8 +162,16 @@ public class SupplierService {
     }
 
     private Supplier updateSupplier(Supplier supplier, SupplierRequestDto supplierRequestDto) {
-        Supplier updatedSupplier = supplierMapper.convertToEntity(supplierRequestDto);
-        updatedSupplier.setId(supplier.getId()); // Preserve the original ID
-        return updatedSupplier;
+        supplier.setName(supplierRequestDto.getName());
+        Contact contact = supplier.getContact();
+        if (contact != null) {
+            Contact contactData = supplierRequestDto.getContact();
+            contact.setEmail(contactData.getEmail());
+            contact.setPhone(contactData.getPhone());
+            contact.setAddress(contactData.getAddress());
+        } else {
+            supplier.setContact(supplierRequestDto.getContact());
+        }
+        return supplier;
     }
 }
