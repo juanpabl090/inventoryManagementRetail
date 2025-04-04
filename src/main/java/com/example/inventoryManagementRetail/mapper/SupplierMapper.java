@@ -15,7 +15,7 @@ public class SupplierMapper {
     }
 
     /**
-     * Cnvert Supplier Entity to Supplier Response DTO
+     * Convert Supplier Entity to Supplier Response DTO
      *
      * @param supplier
      * @return
@@ -24,7 +24,7 @@ public class SupplierMapper {
         return SupplierResponseDto.builder()
                 .id(supplier.getId())
                 .name(supplier.getName())
-                .contact(contactMapper.convertToContactResponseDto(supplier.getContact())) // Convertir Contact a ContactResponseDto
+                .contact(contactMapper.convertToContactResponseDto(supplier.getContact()))
                 .build();
     }
 
@@ -37,7 +37,7 @@ public class SupplierMapper {
     public Supplier convertToEntity(SupplierRequestDto supplierRequestDto) {
         return Supplier.builder()
                 .name(supplierRequestDto.getName())
-                .contact(contactMapper.convertToContactEntity(supplierRequestDto.getContact())) // Convertir ContactRequestDto a Contact
+                .contact(contactMapper.convertToContactEntity(supplierRequestDto.getContact()))
                 .build();
     }
 }

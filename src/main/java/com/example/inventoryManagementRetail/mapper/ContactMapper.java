@@ -2,7 +2,6 @@ package com.example.inventoryManagementRetail.mapper;
 
 import com.example.inventoryManagementRetail.dto.ContactDto.ContactResponseDto;
 import com.example.inventoryManagementRetail.model.Contact;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Component;
 
 @Component

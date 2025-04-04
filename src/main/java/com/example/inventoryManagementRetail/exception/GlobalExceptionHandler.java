@@ -27,4 +27,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleDuplicateResourceException(DuplicateResourceException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
+
+    @ExceptionHandler(BusinessValidationException.class)
+    public ResponseEntity<String> handleBusinessValidationException(BusinessValidationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }
