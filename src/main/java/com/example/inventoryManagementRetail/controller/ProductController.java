@@ -39,6 +39,11 @@ public class ProductController {
         return productService.getProductByName(name);
     }
 
+    @GetMapping("/get/productTypeName/{productTypeName}")
+    public ResponseEntity<List<ProductResponseDto>> getProductsByProductType(@PathVariable String productTypeName) {
+        return productService.getProductsByProductType(productTypeName);
+    }
+
     @DeleteMapping("/delete/name/{name}")
     public ResponseEntity<?> deleteProductByName(@PathVariable String name) {
         return productService.deleteProductByName(name);

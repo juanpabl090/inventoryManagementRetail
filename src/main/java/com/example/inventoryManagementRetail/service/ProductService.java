@@ -121,6 +121,25 @@ public class ProductService {
         }
     }
 
+    public ResponseEntity<List<ProductResponseDto>> getProductsByProductType(String productTypeName) {
+        try {
+            List<Product> productList = productRepository.getAllProductsByProductType(productTypeName).orElseThrow(() -> new ResourceNotFoundException("Product type with name: " + productTypeName + " not found"));
+            if (productList.isEmpty()) {
+                log.info("No products found for product type: name={}", productTypeName);
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Collections.emptyList());
+            }
+            List<ProductResponseDto> productListResponse = productList.stream().map(productMapper::convertToResponseDto).toList();
+            log.info("Products retrieved by product type: name={}, count={}", productTypeName, productListResponse.size());
+            return ResponseEntity.status(HttpStatus.OK).body(productListResponse);
+        } catch (ResourceNotFoundException e) {
+            log.warn("Product type not found by name: name={}", productTypeName, e);
+            throw e;
+        } catch (DataAccessException e) {
+            log.error("Error retrieving products by product type: name={}, error={}", productTypeName, e.getMessage(), e);
+            throw new RuntimeException("An error occurred while getting the products by product type: " + productTypeName, e.getCause());
+        }
+    }
+
     @Transactional
     public ResponseEntity<ProductResponseDto> updateProductById(Long id, ProductRequestDto productRequestDto) {
         try {
