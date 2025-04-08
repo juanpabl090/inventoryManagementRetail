@@ -3,6 +3,7 @@ package com.example.inventoryManagementRetail.service;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductRequestDto;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductResponseDto;
 import com.example.inventoryManagementRetail.exception.BusinessValidationException;
+import com.example.inventoryManagementRetail.exception.DataPersistException;
 import com.example.inventoryManagementRetail.exception.DuplicateResourceException;
 import com.example.inventoryManagementRetail.exception.ResourceNotFoundException;
 import com.example.inventoryManagementRetail.mapper.ProductMapper;
@@ -61,7 +62,7 @@ public class ProductService {
             throw e;
         } catch (DataAccessException e) {
             log.error("Error saving product: name={}, error={}", productRequestDto.getName(), e.getMessage(), e);
-            throw new RuntimeException("An error occurred while saving the product", e.getCause());
+            throw new DataPersistException("An error occurred while saving the product");
         }
     }
 
@@ -77,7 +78,7 @@ public class ProductService {
             return ResponseEntity.status(HttpStatus.OK).body(productDtos);
         } catch (DataAccessException e) {
             log.error("Error retrieving products: error={}", e.getMessage(), e);
-            throw new RuntimeException("An error occurred while getting the products", e);
+            throw new DataPersistException("An error occurred while getting the products");
         }
     }
 
@@ -117,7 +118,7 @@ public class ProductService {
             return ResponseEntity.status(HttpStatus.OK).body(productListDto);
         } catch (DataAccessException e) {
             log.error("Error retrieving products by category: id={}, error={}", categoryId, e.getMessage(), e);
-            throw new RuntimeException("An error occurred while getting the products by category: " + categoryId, e.getCause());
+            throw new DataPersistException("An error occurred while getting the products by category: " + categoryId);
         }
     }
 
@@ -136,7 +137,7 @@ public class ProductService {
             throw e;
         } catch (DataAccessException e) {
             log.error("Error retrieving products by product type: name={}, error={}", productTypeName, e.getMessage(), e);
-            throw new RuntimeException("An error occurred while getting the products by product type: " + productTypeName, e.getCause());
+            throw new DataPersistException("An error occurred while getting the products by product type: " + productTypeName);
         }
     }
 
@@ -150,7 +151,7 @@ public class ProductService {
             return ResponseEntity.status(HttpStatus.OK).body(productMapper.convertToResponseDto(productSaved));
         } catch (DataAccessException e) {
             log.error("Error updating product by id: id={}, error={}", id, e.getMessage(), e);
-            throw new RuntimeException("An error occurred while updating the product: " + id, e.getCause());
+            throw new DataPersistException("An error occurred while updating the product: " + id);
         }
     }
 
@@ -164,7 +165,7 @@ public class ProductService {
             return ResponseEntity.status(HttpStatus.OK).body(productMapper.convertToResponseDto(productSaved));
         } catch (DataAccessException e) {
             log.error("Error updating product by name: name={}, error={}", name, e.getMessage(), e);
-            throw new RuntimeException("An error occurred while updating the product: " + name, e.getCause());
+            throw new DataPersistException("An error occurred while updating the product: " + name);
         }
     }
 
@@ -177,7 +178,7 @@ public class ProductService {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (DataAccessException e) {
             log.error("Error deleting product by name: name={}, error={}", name, e.getMessage(), e);
-            throw new RuntimeException("An error occurred while deleting the product: " + name, e.getCause());
+            throw new DataPersistException("An error occurred while deleting the product: " + name);
         }
     }
 
@@ -190,7 +191,7 @@ public class ProductService {
             return ResponseEntity.noContent().build();
         } catch (DataAccessException e) {
             log.error("Error deleting product by id: id={}, error={}", id, e.getMessage(), e);
-            throw new RuntimeException("An error occurred while deleting the product: " + id, e.getCause());
+            throw new DataPersistException("An error occurred while deleting the product: " + id);
         }
     }
 

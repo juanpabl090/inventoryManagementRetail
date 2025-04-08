@@ -2,8 +2,8 @@ package com.example.inventoryManagementRetail.service;
 
 import com.example.inventoryManagementRetail.dto.CategoryDto.CategoryRequestDto;
 import com.example.inventoryManagementRetail.dto.CategoryDto.CategoryResponseDto;
+import com.example.inventoryManagementRetail.exception.DataPersistException;
 import com.example.inventoryManagementRetail.exception.DuplicateResourceException;
-import com.example.inventoryManagementRetail.exception.GenericException;
 import com.example.inventoryManagementRetail.exception.ResourceNotFoundException;
 import com.example.inventoryManagementRetail.mapper.CategoryMapper;
 import com.example.inventoryManagementRetail.model.Category;
@@ -45,7 +45,7 @@ public class CategoryService {
             throw e;
         } catch (DataAccessException e) {
             log.error("Error saving category: name={}, error={}", categoryRequestDto.getName(), e.getMessage(), e);
-            throw new RuntimeException("An error occurred while saving the category", e.getCause());
+            throw new DataPersistException("An error occurred while saving the category");
         }
     }
 
@@ -59,7 +59,7 @@ public class CategoryService {
             return ResponseEntity.status(HttpStatus.OK).body(categoryMapper.convertToDto(category));
         } catch (DataAccessException e) {
             log.error("Error updating category by id: id={}, error={}", id, e.getMessage(), e);
-            throw new GenericException("An error occurred while updating category");
+            throw new DataPersistException("An error occurred while updating category");
         }
     }
 
@@ -73,7 +73,7 @@ public class CategoryService {
             return ResponseEntity.status(HttpStatus.OK).body(categoryMapper.convertToDto(category));
         } catch (DataAccessException e) {
             log.error("Error updating category by name: oldName={}, error={}", name, e.getMessage(), e);
-            throw new RuntimeException("An error occurred while updating the category: " + name, e.getCause());
+            throw new DataPersistException("An error occurred while updating the category: " + name);
         }
     }
 
@@ -91,7 +91,7 @@ public class CategoryService {
             throw e;
         } catch (DataAccessException e) {
             log.error("Error deleting category by id: id={}, error={}", id, e.getMessage(), e);
-            throw new GenericException("An error occurred while deleting category");
+            throw new DataPersistException("An error occurred while deleting category");
         }
     }
 
@@ -107,9 +107,9 @@ public class CategoryService {
         } catch (ResourceNotFoundException e) {
             log.warn("Category not found for deletion: name={}", name);
             throw e;
-        }catch (DataAccessException e) {
+        } catch (DataAccessException e) {
             log.error("Error deleting category by name: name={}, error={}", name, e.getMessage(), e);
-            throw new GenericException("An error occurred while deleting category");
+            throw new DataPersistException("An error occurred while deleting category");
         }
     }
 
@@ -125,7 +125,7 @@ public class CategoryService {
             return ResponseEntity.status(HttpStatus.OK).body(categoryResponseDtos);
         } catch (DataAccessException e) {
             log.error("Error retrieving categories: error={}", e.getMessage(), e);
-            throw new GenericException("An error occurred while retrieving category");
+            throw new DataPersistException("An error occurred while retrieving category");
         }
     }
 
@@ -136,7 +136,7 @@ public class CategoryService {
             return ResponseEntity.status(HttpStatus.OK).body(categoryMapper.convertToDto(category));
         } catch (DataAccessException e) {
             log.error("Error retrieving category by name: name={}, error={}", name, e.getMessage(), e);
-            throw new GenericException("An error occurred while getting category by name: " + name);
+            throw new DataPersistException("An error occurred while getting category by name: " + name);
         }
     }
 
@@ -147,7 +147,7 @@ public class CategoryService {
             return ResponseEntity.status(HttpStatus.OK).body(categoryMapper.convertToDto(category));
         } catch (DataAccessException e) {
             log.error("Something went wrong while getting category by id: {}", id, e);
-            throw new GenericException("An error occurred while getting category by id: " + id);
+            throw new DataPersistException("An error occurred while getting category by id: " + id);
         }
     }
 

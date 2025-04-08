@@ -2,6 +2,7 @@ package com.example.inventoryManagementRetail.service;
 
 import com.example.inventoryManagementRetail.dto.ProductTypeDto.ProductTypeRequestDto;
 import com.example.inventoryManagementRetail.dto.ProductTypeDto.ProductTypeResponseDto;
+import com.example.inventoryManagementRetail.exception.DataPersistException;
 import com.example.inventoryManagementRetail.exception.DuplicateResourceException;
 import com.example.inventoryManagementRetail.exception.ResourceNotFoundException;
 import com.example.inventoryManagementRetail.mapper.ProductTypeMapper;
@@ -45,7 +46,7 @@ public class ProductTypeService {
             throw e;
         } catch (DataAccessException e) {
             log.error("Error adding product type: name={}, error={}", productTypeRequestDto.getName(), e.getMessage(), e);
-            throw new RuntimeException("An error occurred while adding the product type", e.getCause());
+            throw new DataPersistException("An error occurred while adding the product type");
         }
     }
 
@@ -61,7 +62,7 @@ public class ProductTypeService {
             return ResponseEntity.status(HttpStatus.OK).body(productTypeResponseDtos);
         } catch (DataAccessException e) {
             log.error("Error retrieving product types: error={}", e.getMessage(), e);
-            throw new RuntimeException("An error occurred while fetching all product types", e);
+            throw new DataPersistException("An error occurred while fetching all product types");
         }
     }
 
@@ -98,7 +99,7 @@ public class ProductTypeService {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (DataAccessException e) {
             log.error("Error deleting product type by id: id={}, error={}", id, e.getMessage(), e);
-            throw new RuntimeException("An error occurred while deleting the product type by id: " + id, e);
+            throw new DataPersistException("An error occurred while deleting the product type by id: " + id);
         }
     }
 
@@ -111,7 +112,7 @@ public class ProductTypeService {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (DataAccessException e) {
             log.error("Error deleting product type by name: name={}, error={}", name, e.getMessage(), e);
-            throw new RuntimeException("An error occurred while deleting the product type by name: " + name, e);
+            throw new DataPersistException("An error occurred while deleting the product type by name: " + name);
         }
     }
 
@@ -129,7 +130,7 @@ public class ProductTypeService {
             return ResponseEntity.status(HttpStatus.OK).body(productTypeMapper.convertEntityToDto(productTypeSaved));
         } catch (DataAccessException e) {
             log.error("Error updating product type by id: id={}, error={}", id, e.getMessage(), e);
-            throw new RuntimeException("An error occurred while updating the product type by id: " + id, e.getCause());
+            throw new DataPersistException("An error occurred while updating the product type by id: " + id);
         }
     }
 
@@ -147,7 +148,7 @@ public class ProductTypeService {
             return ResponseEntity.status(HttpStatus.OK).body(productTypeMapper.convertEntityToDto(productTypeSaved));
         } catch (DataAccessException e) {
             log.error("Error updating product type by name: name={}, error={}", name, e.getMessage(), e);
-            throw new RuntimeException("An error occurred while updating the product type by name: " + name, e.getCause());
+            throw new DataPersistException("An error occurred while updating the product type by name: " + name);
         }
     }
 }

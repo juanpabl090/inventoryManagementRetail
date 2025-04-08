@@ -2,6 +2,7 @@ package com.example.inventoryManagementRetail.service;
 
 import com.example.inventoryManagementRetail.dto.SupplierDto.SupplierRequestDto;
 import com.example.inventoryManagementRetail.dto.SupplierDto.SupplierResponseDto;
+import com.example.inventoryManagementRetail.exception.DataPersistException;
 import com.example.inventoryManagementRetail.exception.DuplicateResourceException;
 import com.example.inventoryManagementRetail.exception.ResourceNotFoundException;
 import com.example.inventoryManagementRetail.mapper.SupplierMapper;
@@ -47,7 +48,7 @@ public class SupplierService {
             throw e;
         } catch (DataAccessException e) {
             log.error("Error saving supplier: name={}, error={}", supplierRequestDto.getName(), e.getMessage(), e);
-            throw new RuntimeException("An error occurred while saving the supplier", e.getCause());
+            throw new DataPersistException("An error occurred while saving the supplier");
         }
     }
 
@@ -68,7 +69,7 @@ public class SupplierService {
             return ResponseEntity.status(HttpStatus.OK).body(supplierMapper.convertToResponseDto(supplierSaved));
         } catch (DataAccessException e) {
             log.error("Error updating supplier by id: id={}, error={}", id, e.getMessage(), e);
-            throw new RuntimeException("An error occurred while updating the supplier: " + id, e.getCause());
+            throw new DataPersistException("An error occurred while updating the supplier: " + id);
         }
     }
 
@@ -89,7 +90,7 @@ public class SupplierService {
             return ResponseEntity.status(HttpStatus.OK).body(supplierMapper.convertToResponseDto(supplierSaved));
         } catch (DataAccessException e) {
             log.error("Error updating supplier by name: name={}, error={}", name, e.getMessage(), e);
-            throw new RuntimeException("An error occurred while updating the supplier: " + name, e.getCause());
+            throw new DataPersistException("An error occurred while updating the supplier: " + name);
         }
     }
 
@@ -104,7 +105,7 @@ public class SupplierService {
             throw new ResourceNotFoundException("Supplier with id: " + id + " not found");
         } catch (DataAccessException e) {
             log.error("Error deleting supplier by id: id={}, error={}", id, e.getMessage(), e);
-            throw new RuntimeException("An error occurred while deleting the supplier by id: " + id, e.getCause());
+            throw new DataPersistException("An error occurred while deleting the supplier by id: " + id);
         }
     }
 
@@ -119,7 +120,7 @@ public class SupplierService {
             throw new ResourceNotFoundException("Supplier with name: " + name + " not found");
         } catch (DataAccessException e) {
             log.error("Error deleting supplier by name: name={}, error={}", name, e.getMessage(), e);
-            throw new RuntimeException("An error occurred while deleting the supplier by name: " + name, e.getCause());
+            throw new DataPersistException("An error occurred while deleting the supplier by name: " + name);
         }
     }
 
@@ -135,7 +136,7 @@ public class SupplierService {
             return ResponseEntity.status(HttpStatus.OK).body(supplierResponseDtos);
         } catch (DataAccessException e) {
             log.error("Error retrieving suppliers: error={}", e.getMessage(), e);
-            throw new RuntimeException("An error occurred while retrieving suppliers", e.getCause());
+            throw new DataPersistException("An error occurred while retrieving suppliers");
         }
     }
 
