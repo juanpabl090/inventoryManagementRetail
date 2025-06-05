@@ -1,5 +1,6 @@
 package com.example.inventoryManagementRetail.service;
 
+import com.example.inventoryManagementRetail.dto.ProductDto.ProductPatchRequestDto;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductRequestDto;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductResponseDto;
 import com.example.inventoryManagementRetail.exception.BusinessValidationException;
@@ -170,6 +171,26 @@ public class ProductService {
     }
 
     @Transactional
+    public ResponseEntity<ProductResponseDto> updatePatchProductByName(String name, ProductPatchRequestDto productPatchRequestDto) {
+        try {
+            Product product = productRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Product with name: " + name + " not found"));
+            Product productUpdate = updatePatch(productPatchRequestDto, product);
+            Product productSaved = productRepository.save(productUpdate);
+            log.info("Product patched by name: name={}, id={}", productSaved.getName(), productSaved.getId());
+            return ResponseEntity.status(HttpStatus.OK).body(productMapper.convertToResponseDto(productSaved));
+        } catch (DataAccessException e) {
+            log.error("Error patching product by name: name={}, error={}", name, e.getMessage(), e);
+            throw new DataPersistException("An error occurred while patching the product: " + name);
+        } catch (ResourceNotFoundException e) {
+            log.warn("Product not found for patching by name: name={}", name, e);
+            throw e;
+        } catch (BusinessValidationException e) {
+            log.warn("Business validation failed for patching product by name: name={}, error={}", name, e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @Transactional
     public ResponseEntity<Void> deleteProductByName(String name) {
         try {
             Product product = productRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Product with name: " + name + " not found"));
@@ -211,6 +232,33 @@ public class ProductService {
         product.setUpdatedDate(LocalDateTime.now(ZoneId.of("UTC")));
         product.setSupplier(supplier);
         product.setProductType(productType);
+        return product;
+    }
+
+    private Product updatePatch(ProductPatchRequestDto productPatchRequestDto, Product product) {
+        if (productPatchRequestDto.getName() != null) product.setName(productPatchRequestDto.getName());
+        if (productPatchRequestDto.getDescription() != null)
+            product.setDescription(productPatchRequestDto.getDescription());
+        if (productPatchRequestDto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(productPatchRequestDto.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category with id: " + productPatchRequestDto.getCategoryId() + " not found"));
+            product.setCategory(category);
+        }
+        if (productPatchRequestDto.getBuyPrice() != null) product.setBuyPrice(productPatchRequestDto.getBuyPrice());
+        if (productPatchRequestDto.getSalePrice() != null)
+            product.setSalePrice(productPatchRequestDto.getSalePrice());
+        if (productPatchRequestDto.getStock() != null) product.setStock(productPatchRequestDto.getStock());
+        product.setUpdatedDate(LocalDateTime.now(ZoneId.of("UTC")));
+        if (productPatchRequestDto.getSupplierId() != null) {
+            Supplier supplier = supplierRepository.findById(productPatchRequestDto.getSupplierId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Supplier with id: " + productPatchRequestDto.getSupplierId() + " not found"));
+            product.setSupplier(supplier);
+        }
+        if (productPatchRequestDto.getProductTypeId() != null) {
+            ProductType productType = productTypeRepository.findById(productPatchRequestDto.getProductTypeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product type with id: " + productPatchRequestDto.getProductTypeId() + " not found"));
+            product.setProductType(productType);
+        }
         return product;
     }
 

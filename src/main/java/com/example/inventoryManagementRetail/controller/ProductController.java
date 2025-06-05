@@ -1,5 +1,6 @@
 package com.example.inventoryManagementRetail.controller;
 
+import com.example.inventoryManagementRetail.dto.ProductDto.ProductPatchRequestDto;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductRequestDto;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductResponseDto;
 import com.example.inventoryManagementRetail.service.ProductService;
@@ -67,5 +68,10 @@ public class ProductController {
     @PutMapping("/update/name/{name}")
     public ResponseEntity<ProductResponseDto> updateProductByName(@PathVariable String name, @Valid @RequestBody ProductRequestDto productRequestDto) {
         return productService.updateProductByName(name, productRequestDto);
+    }
+
+    @PatchMapping("/update/name/{name}")
+    public ResponseEntity<ProductResponseDto> updatePatchProductByName(@PathVariable String name, @RequestBody ProductPatchRequestDto productPatchRequestDto) {
+        return productService.updatePatchProductByName(name, productPatchRequestDto);
     }
 }
