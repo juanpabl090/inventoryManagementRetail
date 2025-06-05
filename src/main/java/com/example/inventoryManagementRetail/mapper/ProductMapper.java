@@ -41,4 +41,19 @@ public class ProductMapper {
                 .productTypeId(product.getProductType() != null ? product.getProductType().getId() : null)
                 .build();
     }
+
+    public ProductRequestDto convertToRequestDto(Product product) {
+        return ProductRequestDto.builder()
+                .name(product.getName())
+                .description(product.getDescription())
+                .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
+                .buyPrice(product.getBuyPrice())
+                .salePrice(product.getSalePrice())
+                .stock(product.getStock())
+                .createdDate(product.getCreatedDate())
+                .updatedDate(product.getUpdatedDate())
+                .supplierId(product.getSupplier() != null ? product.getSupplier().getId() : null)
+                .productTypeId(product.getProductType() != null ? product.getProductType().getId() : null)
+                .build();
+    }
 }

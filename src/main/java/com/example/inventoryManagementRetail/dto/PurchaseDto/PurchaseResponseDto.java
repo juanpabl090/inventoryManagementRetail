@@ -1,7 +1,7 @@
-package com.example.inventoryManagementRetail.model;
+package com.example.inventoryManagementRetail.dto.PurchaseDto;
 
-
-import jakarta.persistence.*;
+import com.example.inventoryManagementRetail.model.Product;
+import com.example.inventoryManagementRetail.model.Supplier;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,24 +10,15 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Table(name = "purchases")
-@Entity
-@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class Purchase {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@Data
+public class PurchaseResponseDto {
     private Long id;
-    @ManyToOne
-    @JoinColumn(name = "product_id")
     private Product product;
-    @ManyToOne
-    @JoinColumn(name = "supplier_id")
     private Supplier supplier;
     private Long quantity;
-    @Column(precision = 8, scale = 2)
     private BigDecimal amount;
     private LocalDateTime date;
 }

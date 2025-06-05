@@ -213,4 +213,8 @@ public class ProductService {
         product.setProductType(productType);
         return product;
     }
+
+    public boolean existsByName(String name) {
+        return productRepository.existsByName(name);
+    }
 }

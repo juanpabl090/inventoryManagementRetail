@@ -175,4 +175,8 @@ public class SupplierService {
         }
         return supplier;
     }
+
+    public boolean existsByName(String name) {
+        return supplierRepository.existsByName(name);
+    }
 }

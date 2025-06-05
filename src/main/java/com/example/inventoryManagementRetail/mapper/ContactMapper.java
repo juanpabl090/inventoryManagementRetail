@@ -1,5 +1,6 @@
 package com.example.inventoryManagementRetail.mapper;
 
+import com.example.inventoryManagementRetail.dto.ContactDto.ContactRequestDto;
 import com.example.inventoryManagementRetail.dto.ContactDto.ContactResponseDto;
 import com.example.inventoryManagementRetail.model.Contact;
 import org.springframework.stereotype.Component;
@@ -25,14 +26,14 @@ public class ContactMapper {
     /**
      * Convert Contact Response DTO to Contact Entity
      *
-     * @param contactRequestDto
+     * @param contact
      * @return
      */
-    public Contact convertToContactEntity(Contact contactRequestDto) {
+    public Contact convertToContactEntity(Contact contact) {
         return Contact.builder()
-                .address(contactRequestDto.getAddress())
-                .email(contactRequestDto.getEmail())
-                .phone(contactRequestDto.getPhone())
+                .address(contact.getAddress())
+                .email(contact.getEmail())
+                .phone(contact.getPhone())
                 .build();
     }
 }

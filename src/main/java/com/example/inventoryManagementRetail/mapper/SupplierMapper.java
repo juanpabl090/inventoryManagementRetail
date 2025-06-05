@@ -40,4 +40,11 @@ public class SupplierMapper {
                 .contact(contactMapper.convertToContactEntity(supplierRequestDto.getContact()))
                 .build();
     }
+
+    public SupplierRequestDto convertToRequestDto(Supplier supplier) {
+        return SupplierRequestDto.builder()
+                .name(supplier.getName())
+                .contact(contactMapper.convertToContactEntity(supplier.getContact()))
+                .build();
+    }
 }
