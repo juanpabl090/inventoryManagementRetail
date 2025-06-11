@@ -1,5 +1,6 @@
 package com.example.inventoryManagementRetail.mapper;
 
+import com.example.inventoryManagementRetail.dto.SupplierDto.SupplierPatchRequestDto;
 import com.example.inventoryManagementRetail.dto.SupplierDto.SupplierRequestDto;
 import com.example.inventoryManagementRetail.dto.SupplierDto.SupplierResponseDto;
 import com.example.inventoryManagementRetail.model.Supplier;
@@ -45,6 +46,21 @@ public class SupplierMapper {
         return SupplierRequestDto.builder()
                 .name(supplier.getName())
                 .contact(contactMapper.convertToContactEntity(supplier.getContact()))
+                .build();
+    }
+
+    public Supplier convertResponseDtoToEntity(SupplierResponseDto supplierResponseDto) {
+        return Supplier.builder()
+                .id(supplierResponseDto.getId())
+                .name(supplierResponseDto.getName())
+                .contact(contactMapper.convertResponseDtoToEntity(supplierResponseDto.getContact()))
+                .build();
+    }
+
+    public SupplierPatchRequestDto convertResponseDtoToPatchDto(SupplierResponseDto supplierResponseDto) {
+        return SupplierPatchRequestDto.builder()
+                .name(supplierResponseDto.getName())
+                .contact(contactMapper.convertResponseDtoToEntity(supplierResponseDto.getContact()))
                 .build();
     }
 }

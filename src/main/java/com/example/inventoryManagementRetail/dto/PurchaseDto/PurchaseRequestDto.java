@@ -1,7 +1,7 @@
 package com.example.inventoryManagementRetail.dto.PurchaseDto;
 
-import com.example.inventoryManagementRetail.model.Product;
-import com.example.inventoryManagementRetail.model.Supplier;
+import com.example.inventoryManagementRetail.dto.ProductDto.ProductRequestDto;
+import com.example.inventoryManagementRetail.dto.SupplierDto.SupplierRequestDto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -19,9 +19,9 @@ import java.time.LocalDateTime;
 @Data
 public class PurchaseRequestDto {
     @NotNull(message = "Product cannot be null")
-    private Product product;
+    private ProductRequestDto product;
     @NotNull(message = "Supplier cannot be null")
-    private Supplier supplier;
+    private SupplierRequestDto supplier;
     @NotNull(message = "Quantity cannot be null")
     @Min(value = 1, message = "Quantity must be at least 1")
     @PositiveOrZero(message = "Quantity must be positive or zero")
@@ -30,6 +30,5 @@ public class PurchaseRequestDto {
     @Min(value = 0, message = "Amount must be greater than or equal to 0")
     @PositiveOrZero(message = "Amount must be positive or zero")
     private BigDecimal amount;
-    @NotNull(message = "Date cannot be null")
     private LocalDateTime date;
 }

@@ -36,4 +36,13 @@ public class ContactMapper {
                 .phone(contact.getPhone())
                 .build();
     }
+
+    public Contact convertResponseDtoToEntity(ContactResponseDto contactResponseDto) {
+        return Contact.builder()
+                .id(contactResponseDto.getId())
+                .address(contactResponseDto.getAddress())
+                .email(contactResponseDto.getEmail())
+                .phone(contactResponseDto.getPhone())
+                .build();
+    }
 }

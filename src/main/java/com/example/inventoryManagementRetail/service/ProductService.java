@@ -46,6 +46,20 @@ public class ProductService {
     }
 
     @Transactional
+    public ResponseEntity<ProductResponseDto> findOrCreateProduct(ProductRequestDto productRequestDto) {
+        return productRepository.findByName(productRequestDto.getName())
+                .map(product -> ResponseEntity.status(HttpStatus.OK).body(productMapper.convertToResponseDto(product)))
+                .orElseGet(() -> {
+                    Product product = productMapper.convertToEntity(productRequestDto);
+                    LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
+                    product.setCreatedDate(now);
+                    product.setUpdatedDate(now);
+                    Product savedProduct = productRepository.save(product);
+                    return ResponseEntity.status(HttpStatus.CREATED).body(productMapper.convertToResponseDto(savedProduct));
+                });
+    }
+
+    @Transactional
     public ResponseEntity<ProductResponseDto> addProduct(ProductRequestDto productRequestDto) {
         try {
             if (productRepository.existsByName(productRequestDto.getName())) {

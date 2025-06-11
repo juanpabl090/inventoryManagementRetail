@@ -1,7 +1,9 @@
 package com.example.inventoryManagementRetail.service;
 
+import com.example.inventoryManagementRetail.dto.SupplierDto.SupplierPatchRequestDto;
 import com.example.inventoryManagementRetail.dto.SupplierDto.SupplierRequestDto;
 import com.example.inventoryManagementRetail.dto.SupplierDto.SupplierResponseDto;
+import com.example.inventoryManagementRetail.exception.BusinessValidationException;
 import com.example.inventoryManagementRetail.exception.DataPersistException;
 import com.example.inventoryManagementRetail.exception.DuplicateResourceException;
 import com.example.inventoryManagementRetail.exception.ResourceNotFoundException;
@@ -30,6 +32,17 @@ public class SupplierService {
     public SupplierService(SupplierRepository supplierRepository, SupplierMapper supplierMapper) {
         this.supplierRepository = supplierRepository;
         this.supplierMapper = supplierMapper;
+    }
+
+    @Transactional
+    public ResponseEntity<SupplierResponseDto> findOrCreateSupplier(SupplierRequestDto supplierRequestDto) {
+        return supplierRepository.findByName(supplierRequestDto.getName())
+                .map(supplier -> ResponseEntity.status(HttpStatus.OK).body(supplierMapper.convertToResponseDto(supplier)))
+                .orElseGet(() -> {
+                    Supplier supplier = supplierMapper.convertToEntity(supplierRequestDto);
+                    Supplier savedSupplier = supplierRepository.save(supplier);
+                    return ResponseEntity.status(HttpStatus.CREATED).body(supplierMapper.convertToResponseDto(savedSupplier));
+                });
     }
 
     @Transactional
@@ -94,7 +107,25 @@ public class SupplierService {
         }
     }
 
-
+    @Transactional
+    public ResponseEntity<SupplierResponseDto> updatePatchSupplierByName(String name,SupplierPatchRequestDto supplierPatchRequestDto) {
+        try {
+            Supplier supplier = supplierRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Supplier with name: " + name + " not found"));
+            Supplier supplierUpdated = updatePatchSupplier(supplier, supplierPatchRequestDto);
+            Supplier supplierSaved = supplierRepository.save(supplierUpdated);
+            log.info("Supplier patched successfully by name: currentName={}, newName={}", name, supplierSaved.getName());
+            return ResponseEntity.status(HttpStatus.OK).body(supplierMapper.convertToResponseDto(supplierSaved));
+        } catch (DataAccessException e) {
+            log.error("Error patching supplier by name: name={}, error={}", supplierPatchRequestDto.getName(), e.getMessage(), e);
+            throw new DataPersistException("An error occurred while patching the supplier: " + supplierPatchRequestDto.getName());
+        } catch (ResourceNotFoundException e) {
+            log.warn("Supplier not found for patching by name: name={}", supplierPatchRequestDto.getName());
+            throw e;
+        } catch (BusinessValidationException e) {
+            log.warn("Supplier patching validation failed: name={}, error={}", supplierPatchRequestDto.getName(), e.getMessage());
+            throw e;
+        }
+    }
 
     @Transactional
     public ResponseEntity<Void> deleteSupplierById(Long id) {
@@ -175,6 +206,19 @@ public class SupplierService {
         } else {
             supplier.setContact(supplierRequestDto.getContact());
         }
+        return supplier;
+    }
+
+    private Supplier updatePatchSupplier(Supplier supplier, SupplierPatchRequestDto supplierPatchRequestDto) {
+        if (supplierPatchRequestDto.getName() != null) supplier.setName(supplierPatchRequestDto.getName());
+        Contact contact = supplier.getContact();
+        if (supplierPatchRequestDto.getContact() != null) {
+            Contact contactData = supplierPatchRequestDto.getContact();
+            contact.setPhone(contactData.getPhone());
+            contact.setEmail(contactData.getEmail());
+            contact.setAddress(contactData.getAddress());
+        }
+        supplier.setContact(contact);
         return supplier;
     }
 

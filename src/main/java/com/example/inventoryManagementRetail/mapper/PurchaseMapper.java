@@ -9,15 +9,17 @@ import org.springframework.stereotype.Component;
 public class PurchaseMapper {
 
     private final ProductMapper productMapper;
+    private final SupplierMapper supplierMapper;
 
-    public PurchaseMapper(ProductMapper productMapper) {
+    public PurchaseMapper(ProductMapper productMapper, SupplierMapper supplierMapper) {
         this.productMapper = productMapper;
+        this.supplierMapper = supplierMapper;
     }
 
     public Purchase convertDtoToEntity(PurchaseRequestDto purchaseRequestDto) {
         return Purchase.builder()
-                .product(purchaseRequestDto.getProduct())
-                .supplier(purchaseRequestDto.getSupplier())
+                .product(productMapper.convertToEntity(purchaseRequestDto.getProduct()))
+                .supplier(supplierMapper.convertToEntity(purchaseRequestDto.getSupplier()))
                 .quantity(purchaseRequestDto.getQuantity())
                 .amount(purchaseRequestDto.getAmount())
                 .date(purchaseRequestDto.getDate())
