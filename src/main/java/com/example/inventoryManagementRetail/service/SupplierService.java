@@ -15,7 +15,6 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -37,16 +36,16 @@ public class SupplierService {
     @Transactional
     public ResponseEntity<SupplierResponseDto> findOrCreateSupplier(SupplierRequestDto supplierRequestDto) {
         return supplierRepository.findByName(supplierRequestDto.getName())
-                .map(supplier -> ResponseEntity.status(HttpStatus.OK).body(supplierMapper.convertToResponseDto(supplier)))
+                .map(supplier -> ResponseEntity.ok(supplierMapper.convertToResponseDto(supplier)))
                 .orElseGet(() -> {
                     Supplier supplier = supplierMapper.convertToEntity(supplierRequestDto);
                     Supplier savedSupplier = supplierRepository.save(supplier);
-                    return ResponseEntity.status(HttpStatus.CREATED).body(supplierMapper.convertToResponseDto(savedSupplier));
+                    return ResponseEntity.ok(supplierMapper.convertToResponseDto(savedSupplier));
                 });
     }
 
     @Transactional
-    public ResponseEntity<SupplierResponseDto> addSupplier(SupplierRequestDto supplierRequestDto) {
+    public SupplierResponseDto addSupplier(SupplierRequestDto supplierRequestDto) {
         try {
             if (supplierRepository.existsByName(supplierRequestDto.getName())) {
                 log.warn("Attempt to add duplicate supplier: name={}", supplierRequestDto.getName());
@@ -55,7 +54,7 @@ public class SupplierService {
             Supplier supplier = supplierMapper.convertToEntity(supplierRequestDto);
             Supplier supplierSaved = supplierRepository.save(supplier);
             log.info("Supplier added successfully: id={}, name={}", supplierSaved.getId(), supplierSaved.getName());
-            return ResponseEntity.status(HttpStatus.CREATED).body(supplierMapper.convertToResponseDto(supplierSaved));
+            return supplierMapper.convertToResponseDto(supplierSaved);
         } catch (DuplicateResourceException e) {
             log.error("Duplicate supplier detected: name={}", supplierRequestDto.getName(), e);
             throw e;
@@ -66,7 +65,7 @@ public class SupplierService {
     }
 
     @Transactional
-    public ResponseEntity<SupplierResponseDto> updateSupplierById(Long id, SupplierRequestDto supplierRequestDto) {
+    public SupplierResponseDto updateSupplierById(Long id, SupplierRequestDto supplierRequestDto) {
         try {
             Supplier supplier = supplierRepository.findById(id).orElseThrow(() -> {
                 log.warn("Supplier not found by id: id={}", id);
@@ -79,7 +78,7 @@ public class SupplierService {
             Supplier supplierUpdated = updateSupplier(supplier, supplierRequestDto);
             Supplier supplierSaved = supplierRepository.save(supplierUpdated);
             log.info("Supplier updated successfully by id: id={}, name={}", supplierSaved.getId(), supplierSaved.getName());
-            return ResponseEntity.status(HttpStatus.OK).body(supplierMapper.convertToResponseDto(supplierSaved));
+            return supplierMapper.convertToResponseDto(supplierSaved);
         } catch (DataAccessException e) {
             log.error("Error updating supplier by id: id={}, error={}", id, e.getMessage(), e);
             throw new DataPersistException("An error occurred while updating the supplier: " + id);
@@ -87,7 +86,7 @@ public class SupplierService {
     }
 
     @Transactional
-    public ResponseEntity<SupplierResponseDto> updateSupplierByName(String name, SupplierRequestDto supplierRequestDto) {
+    public SupplierResponseDto updateSupplierByName(String name, SupplierRequestDto supplierRequestDto) {
         try {
             Supplier supplier = supplierRepository.findByName(name).orElseThrow(() -> {
                 log.warn("Supplier not found by name: name={}", name);
@@ -100,7 +99,7 @@ public class SupplierService {
             Supplier supplierUpdated = updateSupplier(supplier, supplierRequestDto);
             Supplier supplierSaved = supplierRepository.save(supplierUpdated);
             log.info("Supplier updated successfully by name: currentName={}, newName={}", name, supplierSaved.getName());
-            return ResponseEntity.status(HttpStatus.OK).body(supplierMapper.convertToResponseDto(supplierSaved));
+            return supplierMapper.convertToResponseDto(supplierSaved);
         } catch (DataAccessException e) {
             log.error("Error updating supplier by name: name={}, error={}", name, e.getMessage(), e);
             throw new DataPersistException("An error occurred while updating the supplier: " + name);
@@ -108,13 +107,13 @@ public class SupplierService {
     }
 
     @Transactional
-    public ResponseEntity<SupplierResponseDto> updatePatchSupplierByName(String name,SupplierPatchRequestDto supplierPatchRequestDto) {
+    public SupplierResponseDto updatePatchSupplierByName(String name, SupplierPatchRequestDto supplierPatchRequestDto) {
         try {
             Supplier supplier = supplierRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Supplier with name: " + name + " not found"));
             Supplier supplierUpdated = updatePatchSupplier(supplier, supplierPatchRequestDto);
             Supplier supplierSaved = supplierRepository.save(supplierUpdated);
             log.info("Supplier patched successfully by name: currentName={}, newName={}", name, supplierSaved.getName());
-            return ResponseEntity.status(HttpStatus.OK).body(supplierMapper.convertToResponseDto(supplierSaved));
+            return supplierMapper.convertToResponseDto(supplierSaved);
         } catch (DataAccessException e) {
             log.error("Error patching supplier by name: name={}, error={}", supplierPatchRequestDto.getName(), e.getMessage(), e);
             throw new DataPersistException("An error occurred while patching the supplier: " + supplierPatchRequestDto.getName());
@@ -128,11 +127,10 @@ public class SupplierService {
     }
 
     @Transactional
-    public ResponseEntity<Void> deleteSupplierById(Long id) {
+    public void deleteSupplierById(Long id) {
         try {
             supplierRepository.deleteById(id);
             log.info("Supplier deleted successfully by id: id={}", id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (EmptyResultDataAccessException e) {
             log.warn("Supplier not found for deletion by id: id={}", id);
             throw new ResourceNotFoundException("Supplier with id: " + id + " not found");
@@ -143,11 +141,10 @@ public class SupplierService {
     }
 
     @Transactional
-    public ResponseEntity<Void> deleteSupplierByName(String name) {
+    public void deleteSupplierByName(String name) {
         try {
             supplierRepository.deleteByName(name);
             log.info("Supplier deleted successfully by name: name={}", name);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (EmptyResultDataAccessException e) {
             log.warn("Supplier not found for deletion by name: name={}", name);
             throw new ResourceNotFoundException("Supplier with name: " + name + " not found");
@@ -157,27 +154,27 @@ public class SupplierService {
         }
     }
 
-    public ResponseEntity<List<SupplierResponseDto>> getAllSupplier() {
+    public List<SupplierResponseDto> getAllSupplier() {
         try {
             List<Supplier> supplierList = supplierRepository.findAll();
             if (supplierList.isEmpty()) {
                 log.info("No suppliers found");
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Collections.emptyList());
+                return Collections.emptyList();
             }
             List<SupplierResponseDto> supplierResponseDtos = supplierList.stream().map(supplierMapper::convertToResponseDto).toList();
             log.info("Suppliers retrieved successfully: count={}", supplierResponseDtos.size());
-            return ResponseEntity.status(HttpStatus.OK).body(supplierResponseDtos);
+            return supplierResponseDtos;
         } catch (DataAccessException e) {
             log.error("Error retrieving suppliers: error={}", e.getMessage(), e);
             throw new DataPersistException("An error occurred while retrieving suppliers");
         }
     }
 
-    public ResponseEntity<SupplierResponseDto> getSupplierById(Long id) {
+    public SupplierResponseDto getSupplierById(Long id) {
         return supplierRepository.findById(id).map(
                 supplier -> {
                     log.info("Supplier retrieved by id: id={}", id);
-                    return ResponseEntity.status(HttpStatus.OK).body(supplierMapper.convertToResponseDto(supplier));
+                    return supplierMapper.convertToResponseDto(supplier);
                 }
         ).orElseThrow(() -> {
             log.warn("Supplier not found by id: id={}", id);
@@ -185,10 +182,10 @@ public class SupplierService {
         });
     }
 
-    public ResponseEntity<SupplierResponseDto> getSupplierByName(String name) {
+    public SupplierResponseDto getSupplierByName(String name) {
         return supplierRepository.findByName(name).map(supplier -> {
             log.info("Supplier retrieved by name: name={}", name);
-            return ResponseEntity.status(HttpStatus.OK).body(supplierMapper.convertToResponseDto(supplier));
+            return supplierMapper.convertToResponseDto(supplier);
         }).orElseThrow(() -> {
             log.warn("Supplier not found by name: name={}", name);
             return new ResourceNotFoundException("Supplier with name: " + name + " not found");

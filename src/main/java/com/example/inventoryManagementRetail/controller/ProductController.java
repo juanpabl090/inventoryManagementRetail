@@ -22,56 +22,65 @@ public class ProductController {
 
     @GetMapping("/get")
     public ResponseEntity<List<ProductResponseDto>> getAllProducts() {
-        return productService.getAllProducts();
+        List<ProductResponseDto> allProducts = productService.getAllProducts();
+        return ResponseEntity.ok(allProducts);
     }
 
     @PostMapping("/add")
     public ResponseEntity<ProductResponseDto> addProduct(@Valid @RequestBody ProductRequestDto productRequestDto) {
-        return productService.addProduct(productRequestDto);
+        ProductResponseDto responseDto = productService.addProduct(productRequestDto);
+        return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping("/get/id/{id}")
     public ResponseEntity<ProductResponseDto> getProductById(@PathVariable Long id) {
-        return productService.getProductById(id);
+        ProductResponseDto productById = productService.getProductById(id);
+        return ResponseEntity.ok(productById);
     }
 
     @GetMapping("/get/name/{name}")
     public ResponseEntity<ProductResponseDto> getProductByName(@PathVariable String name) {
-        return productService.getProductByName(name);
+        ProductResponseDto productByName = productService.getProductByName(name);
+        return ResponseEntity.ok(productByName);
     }
 
     @GetMapping("/get/productTypeName/{productTypeName}")
     public ResponseEntity<List<ProductResponseDto>> getProductsByProductType(@PathVariable String productTypeName) {
-        return productService.getProductsByProductType(productTypeName);
+        List<ProductResponseDto> productsByProductType = productService.getProductsByProductType(productTypeName);
+        return ResponseEntity.ok(productsByProductType);
     }
 
     @DeleteMapping("/delete/name/{name}")
-    public ResponseEntity<?> deleteProductByName(@PathVariable String name) {
-        return productService.deleteProductByName(name);
+    public void deleteProductByName(@PathVariable String name) {
+        productService.deleteProductByName(name);
     }
 
     @DeleteMapping("/delete/id/{id}")
-    public ResponseEntity<?> deleteProductById(@PathVariable Long id) {
-        return productService.deleteProductById(id);
+    public void deleteProductById(@PathVariable Long id) {
+        productService.deleteProductById(id);
     }
 
     @GetMapping("/getByCategory/{categoryId}")
-    public ResponseEntity<?> getAllProductsByCategory(@PathVariable Long categoryId) {
-        return productService.getAllProductsByCategory(categoryId);
+    public ResponseEntity<List<ProductResponseDto>> getAllProductsByCategory(@PathVariable Long categoryId) {
+        List<ProductResponseDto> allProductsByCategory = productService.getAllProductsByCategory(categoryId);
+        return ResponseEntity.ok(allProductsByCategory);
     }
 
     @PutMapping("/update/id/{id}")
     public ResponseEntity<ProductResponseDto> updateProductById(@PathVariable Long id, @Valid @RequestBody ProductRequestDto productRequestDto) {
-        return productService.updateProductById(id, productRequestDto);
+        ProductResponseDto responseDto = productService.updateProductById(id, productRequestDto);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PutMapping("/update/name/{name}")
     public ResponseEntity<ProductResponseDto> updateProductByName(@PathVariable String name, @Valid @RequestBody ProductRequestDto productRequestDto) {
-        return productService.updateProductByName(name, productRequestDto);
+        ProductResponseDto responseDto = productService.updateProductByName(name, productRequestDto);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PatchMapping("/update/name/{name}")
     public ResponseEntity<ProductResponseDto> updatePatchProductByName(@PathVariable String name, @RequestBody ProductPatchRequestDto productPatchRequestDto) {
-        return productService.updatePatchProductByName(name, productPatchRequestDto);
+        ProductResponseDto responseDto = productService.updatePatchProductByName(name, productPatchRequestDto);
+        return ResponseEntity.ok(responseDto);
     }
 }

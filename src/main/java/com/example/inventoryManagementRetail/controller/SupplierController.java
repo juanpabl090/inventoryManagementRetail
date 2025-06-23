@@ -21,42 +21,48 @@ public class SupplierController {
 
     @PostMapping("/add")
     public ResponseEntity<SupplierResponseDto> addSupplier(@Valid @RequestBody SupplierRequestDto supplierRequestDto) {
-        return supplierService.addSupplier(supplierRequestDto);
+        SupplierResponseDto supplierResponseDto = supplierService.addSupplier(supplierRequestDto);
+        return ResponseEntity.ok(supplierResponseDto);
     }
 
     @PutMapping("/update/id/{id}")
     public ResponseEntity<SupplierResponseDto> updateSupplierById(@PathVariable Long id, @Valid @RequestBody SupplierRequestDto supplierRequestDto) {
-        return supplierService.updateSupplierById(id, supplierRequestDto);
+        SupplierResponseDto supplierResponseDto = supplierService.updateSupplierById(id, supplierRequestDto);
+        return ResponseEntity.ok(supplierResponseDto);
     }
 
     @PutMapping("/update/name/{name}")
     public ResponseEntity<SupplierResponseDto> updateSupplierByName(@PathVariable String name, @Valid @RequestBody SupplierRequestDto supplierRequestDto) {
-        return supplierService.updateSupplierByName(name, supplierRequestDto);
+        SupplierResponseDto supplierResponseDto = supplierService.updateSupplierByName(name, supplierRequestDto);
+        return ResponseEntity.ok(supplierResponseDto);
     }
 
     @DeleteMapping("/delete/id/{id}")
-    public ResponseEntity<Void> deleteSupplierById(@PathVariable Long id) {
-        return supplierService.deleteSupplierById(id);
+    public void deleteSupplierById(@PathVariable Long id) {
+        supplierService.deleteSupplierById(id);
     }
 
     @DeleteMapping("/delete/name/{name}")
-    public ResponseEntity<Void> deleteSupplierByName(@PathVariable String name) {
-        return supplierService.deleteSupplierByName(name);
+    public void deleteSupplierByName(@PathVariable String name) {
+        supplierService.deleteSupplierByName(name);
     }
 
     @GetMapping("/get")
     public ResponseEntity<List<SupplierResponseDto>> getAllSupplier() {
-        return supplierService.getAllSupplier();
+        List<SupplierResponseDto> allSupplier = supplierService.getAllSupplier();
+        return ResponseEntity.ok(allSupplier);
     }
 
     @GetMapping("/get/id/{id}")
     public ResponseEntity<SupplierResponseDto> getSupplierById(@PathVariable Long id) {
-        return supplierService.getSupplierById(id);
+        SupplierResponseDto supplierById = supplierService.getSupplierById(id);
+        return ResponseEntity.ok(supplierById);
     }
 
     @GetMapping("/get/name/{name}")
     public ResponseEntity<SupplierResponseDto> getSupplierByName(@PathVariable String name) {
-        return supplierService.getSupplierByName(name);
+        SupplierResponseDto supplierByName = supplierService.getSupplierByName(name);
+        return ResponseEntity.ok(supplierByName);
     }
 
 }
