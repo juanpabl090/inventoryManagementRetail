@@ -43,34 +43,6 @@ public class ProductMapper {
                 .build();
     }
 
-    public ProductRequestDto convertToRequestDto(Product product) {
-        return ProductRequestDto.builder()
-                .name(product.getName())
-                .description(product.getDescription())
-                .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
-                .buyPrice(product.getBuyPrice())
-                .salePrice(product.getSalePrice())
-                .stock(product.getStock())
-                .createdDate(product.getCreatedDate())
-                .updatedDate(product.getUpdatedDate())
-                .supplierId(product.getSupplier() != null ? product.getSupplier().getId() : null)
-                .productTypeId(product.getProductType() != null ? product.getProductType().getId() : null)
-                .build();
-    }
-
-    public ProductPatchRequestDto convertRequestDtoToPatchDto(ProductRequestDto productRequestDto) {
-        return ProductPatchRequestDto.builder()
-                .name(productRequestDto.getName())
-                .description(productRequestDto.getDescription())
-                .categoryId(productRequestDto.getCategoryId())
-                .buyPrice(productRequestDto.getBuyPrice())
-                .salePrice(productRequestDto.getSalePrice())
-                .stock(productRequestDto.getStock())
-                .supplierId(productRequestDto.getSupplierId())
-                .productTypeId(productRequestDto.getProductTypeId())
-                .build();
-    }
-
     public ProductPatchRequestDto convertResponseDtoToPatchDto(ProductResponseDto productResponseDto) {
         return ProductPatchRequestDto.builder()
                 .name(productResponseDto.getName())
@@ -97,6 +69,36 @@ public class ProductMapper {
                 .updatedDate(productResponseDto.getUpdatedDate())
                 .supplier(Supplier.builder().id(productResponseDto.getSupplierId()).build())
                 .productType(ProductType.builder().id(productResponseDto.getProductTypeId()).build())
+                .build();
+    }
+
+    public Product convertPatchDtoToEntity(ProductPatchRequestDto productPatchRequestDto) {
+        return Product.builder()
+                .name(productPatchRequestDto.getName())
+                .description(productPatchRequestDto.getDescription())
+                .category(Category.builder().id(productPatchRequestDto.getCategoryId()).build())
+                .buyPrice(productPatchRequestDto.getBuyPrice())
+                .salePrice(productPatchRequestDto.getSalePrice())
+                .stock(productPatchRequestDto.getStock())
+                .createdDate(productPatchRequestDto.getCreatedDate())
+                .updatedDate(productPatchRequestDto.getUpdatedDate())
+                .supplier(Supplier.builder().id(productPatchRequestDto.getSupplierId()).build())
+                .productType(ProductType.builder().id(productPatchRequestDto.getProductTypeId()).build())
+                .build();
+    }
+
+    public ProductPatchRequestDto convertEntityToPatch(Product product) {
+        return ProductPatchRequestDto.builder()
+                .name(product.getName())
+                .description(product.getDescription())
+                .categoryId(product.getCategory().getId())
+                .buyPrice(product.getBuyPrice())
+                .salePrice(product.getSalePrice())
+                .stock(product.getStock())
+                .createdDate(product.getCreatedDate())
+                .updatedDate(product.getUpdatedDate())
+                .supplierId(product.getSupplier().getId())
+                .productTypeId(product.getProductType().getId())
                 .build();
     }
 }

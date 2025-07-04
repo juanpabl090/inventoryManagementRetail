@@ -1,6 +1,6 @@
-package com.example.inventoryManagementRetail.model;
+package com.example.inventoryManagementRetail.dto.SalesDto;
 
-import jakarta.persistence.*;
+import com.example.inventoryManagementRetail.dto.SaleDetailsDto.SaleDetailsResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,18 +8,15 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Table(name = "sales")
-@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Sale {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class SaleResponseDto {
     private Long id;
     private LocalDateTime date;
-    @Column(precision = 8, scale = 2)
     private BigDecimal amount;
+    private List<SaleDetailsResponseDto> saleDetailsResponseDto;
 }

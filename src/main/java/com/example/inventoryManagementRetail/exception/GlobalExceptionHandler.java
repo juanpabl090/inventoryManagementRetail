@@ -37,4 +37,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleDataPersistException(DataPersistException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
+
+    @ExceptionHandler(com.example.inventoryManagementRetail.exception.InsufficientResourcesException.class)
+    public ResponseEntity<String> handleInsufficientResourcesException(InsufficientResourcesException ex) {
+        return ResponseEntity.status(HttpStatus.INSUFFICIENT_STORAGE).body(ex.getMessage());
+    }
 }

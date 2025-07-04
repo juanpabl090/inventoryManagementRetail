@@ -121,6 +121,13 @@ public class ProductService {
                 });
     }
 
+    public Product getProductEntityByName(String name) {
+        return productRepository.findByName(name).orElseThrow(() -> {
+            log.warn("product not found: {}", name);
+            return new ResourceNotFoundException("product not found by name: " + name + ".");
+        });
+    }
+
     public List<ProductResponseDto> getAllProductsByCategory(Long categoryId) {
         try {
             List<Product> productList = productRepository.getAllProductsByCategory(categoryId);
