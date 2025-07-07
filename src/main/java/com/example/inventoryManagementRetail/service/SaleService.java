@@ -22,6 +22,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -43,45 +44,6 @@ public class SaleService {
         this.productMapper = productMapper;
     }
 
-    private static Sale getBuildSale(BigDecimal totalWithDiscount) {
-        return Sale.builder()
-                .date(LocalDateTime.now(ZoneId.of("UTC")))
-                .amount(totalWithDiscount)
-                .build();
-    }
-
-    private static BigDecimal getDiscount(SaleDetailsRequestDto saleDetailsRequestDto, ProductResponseDto productInStock, BigDecimal totalWithDiscount) {
-        BigDecimal discount = productInStock.getSalePrice().multiply(saleDetailsRequestDto.getDiscount());
-        BigDecimal priceWithDiscount = productInStock.getSalePrice();
-        priceWithDiscount = priceWithDiscount.subtract(discount);
-        totalWithDiscount = totalWithDiscount.add(priceWithDiscount);
-        return totalWithDiscount;
-    }
-
-    private static BigDecimal getTotalWithOutDiscount(ProductResponseDto productInStock) {
-        BigDecimal totalWithoutDiscount = BigDecimal.ZERO;
-        totalWithoutDiscount = totalWithoutDiscount.add(productInStock.getSalePrice());
-        return totalWithoutDiscount;
-    }
-
-    private static ProductResponseDto getProductResponseDto(ProductResponseDto productResponseDto) {
-        ProductResponseDto productsUpdated;
-        productsUpdated = ProductResponseDto.builder()
-                .id(productResponseDto.getId())
-                .name(productResponseDto.getName())
-                .description(productResponseDto.getDescription())
-                .categoryId(productResponseDto.getCategoryId())
-                .buyPrice(productResponseDto.getBuyPrice())
-                .salePrice(productResponseDto.getSalePrice())
-                .stock(productResponseDto.getStock())
-                .createdDate(productResponseDto.getCreatedDate())
-                .updatedDate(productResponseDto.getUpdatedDate())
-                .supplierId(productResponseDto.getSupplierId())
-                .productTypeId(productResponseDto.getProductTypeId())
-                .build();
-        return productsUpdated;
-    }
-
     /**
      * Obtener él sale y saleDetails por separado del SaleRequestDto <br>
      * Actualizar el producto o productos <br>
@@ -92,68 +54,75 @@ public class SaleService {
     @Transactional
     public SaleResponseDto registerSale(SaleDetailsRequestDto saleDetailsRequestDto) {
         try {
-            // initialize variables
-            Sale sale;
-            ProductResponseDto productUpdated = ProductResponseDto.builder().build();
-            List<ProductResponseDto> productsUpdated = new ArrayList<>();
-            List<SaleDetails> saleDetailsList = new ArrayList<>();
-            BigDecimal totalWithDiscount = BigDecimal.ZERO;
-            ProductResponseDto.builder().build();
-            ProductResponseDto productInStock = ProductResponseDto.builder().build();
-            long quantity = 0;
+            // 1. Preparar datos iniciales
             Map<String, Long> productCountMap = saleDetailsRequestDto.getProductsList().stream().collect(Collectors.groupingBy(ProductPatchRequestDto::getName, Collectors.counting()));
-
-            // iteration and handle of each product
+            List<SaleDetails> saleDetailsToSave = new ArrayList<>();
+            BigDecimal totalAmount = BigDecimal.ZERO;
+            // 2. Primera pasada: Validar stock y calcular total
             for (Map.Entry<String, Long> entry : productCountMap.entrySet()) {
                 String productName = entry.getKey();
-                productInStock = productService.getProductByName(productName);
-                quantity = entry.getValue();
+                Long quantity = entry.getValue();
+                ProductResponseDto productInStock = productService.getProductByName(productName);
+
                 if (quantity > productInStock.getStock()) {
-                    log.error("Insufficient stock for product: {}", productName);
-                    throw new InsufficientResourcesException("Insufficient stock for product: " + productName);
+                    log.error("Stock insufficient");
+                    throw new InsufficientResourcesException("Stock insufficient");
                 }
-                if (saleDetailsRequestDto.getDiscount() != null && saleDetailsRequestDto.getDiscount().compareTo(BigDecimal.ZERO) > 0.00) {
-                    totalWithDiscount = getDiscount(saleDetailsRequestDto, productInStock, totalWithDiscount);
-                }
-                productInStock.setStock(productInStock.getStock() - (int) quantity);
-                ProductPatchRequestDto productPatchRequestDto = productMapper.convertResponseDtoToPatchDto(productInStock);
-                ProductResponseDto productResponseDto = productService.updatePatchProductByName(productName, productPatchRequestDto);
-                productUpdated = getProductResponseDto(productResponseDto);
-                productsUpdated.add(productUpdated);
+
+                BigDecimal itemPrice = calculateItemPrice(productInStock, saleDetailsRequestDto.getDiscount());
+                totalAmount = totalAmount.add(itemPrice.multiply(new BigDecimal(quantity)));
             }
-            // save Sale
-            sale = getBuildSale((totalWithDiscount.equals(BigDecimal.ZERO)) ? getTotalWithOutDiscount(productInStock) : BigDecimal.ZERO);
+            // 3. Crear y guardar Sale primero
+            Sale sale = Sale.builder()
+                    .date(LocalDateTime.now(ZoneId.of("UTC")))
+                    .amount(totalAmount)
+                    .build();
             sale = saleRepository.save(sale);
-            // iterate each productUpdate, build saleDetails and save it
-            for (int i = 0; i < productsUpdated.size(); i++) {
-                SaleDetails saleDetails = getSaleDetailsResponseDto(saleDetailsRequestDto, productUpdated, quantity,
-                        (totalWithDiscount.equals(BigDecimal.ZERO)) ? getTotalWithOutDiscount(productInStock) : BigDecimal.ZERO);
-                saleDetails = saleDetailsRepository.save(saleDetails);
-                saleDetailsList.add(saleDetails);
+            // 4. Segunda pasada: Actualizar productos y crear detalles
+            for (Map.Entry<String, Long> entry : productCountMap.entrySet()) {
+                String productName = entry.getKey();
+                Long quantity = entry.getValue();
+
+                ProductResponseDto productInStock = productService.getProductByName(productName);
+                BigDecimal itemPrice = calculateItemPrice(productInStock, saleDetailsRequestDto.getDiscount());
+
+                // Actualizar stock del producto
+                productInStock.setStock(productInStock.getStock() - quantity);
+                ProductPatchRequestDto productPatchRequestDto = productMapper.convertResponseDtoToPatchDto(productInStock);
+                ProductResponseDto updatedProduct = productService.updatePatchProductByName(productName, productPatchRequestDto);
+
+                for (int i = 0; i < quantity; i++) {
+                    // Generar detalles de venta (uno por unidad)
+                    SaleDetails saleDetails = SaleDetails.builder()
+                            .sale(sale)
+                            .product(productMapper.convertResponseDtoToEntity(updatedProduct))
+                            .amount(itemPrice)
+                            .discount((saleDetailsRequestDto.getDiscount() != null) ? saleDetailsRequestDto.getDiscount() : BigDecimal.ZERO)
+                            .quantity(1L)
+                            .build();
+                    saleDetailsToSave.add(saleDetails);
+                }
             }
-            log.info("Sale details registered successfully");
-            return getBuildSaleResponseDto(sale, saleDetailsList);
+            // 5. Guardar todos los detalles de venta
+            List<SaleDetails> savedDetails = saleDetailsRepository.saveAll(saleDetailsToSave);
+            // 6. Construir respuesta
+            return SaleResponseDto.builder()
+                    .id(sale.getId())
+                    .date(sale.getDate())
+                    .amount(sale.getAmount())
+                    .saleDetailsResponseDto(saleDetailsMapper.convertSaleDetailsListToSaleDetailsResponseDtoList(savedDetails))
+                    .build();
         } catch (DataAccessException e) {
             log.error("Error registering sale: {}", e.getMessage());
             throw new RuntimeException("Error registering sale", e);
         }
     }
 
-    private SaleDetails getSaleDetailsResponseDto(SaleDetailsRequestDto saleDetailsRequestDto, ProductResponseDto productsUpdated, Long quantity, BigDecimal totalWithDiscount) {
-        return SaleDetails.builder()
-                .product(productMapper.convertResponseDtoToEntity(productsUpdated))
-                .amount(totalWithDiscount)
-                .discount(saleDetailsRequestDto.getDiscount())
-                .quantity(quantity)
-                .build();
-    }
-
-    private SaleResponseDto getBuildSaleResponseDto(Sale sale, List<SaleDetails> saleDetails) {
-        return SaleResponseDto.builder()
-                .id(sale.getId())
-                .date(sale.getDate())
-                .amount(sale.getAmount())
-                .saleDetailsResponseDto(saleDetailsMapper.convertSaleDetailsListToSaleDetailsResponseDtoList(saleDetails))
-                .build();
+    private BigDecimal calculateItemPrice(ProductResponseDto productInStock, BigDecimal discount) {
+        if (discount != null && Objects.equals(discount, BigDecimal.ZERO)) {
+            BigDecimal discountAmount = productInStock.getSalePrice().multiply(discount);
+            return productInStock.getSalePrice().subtract(discountAmount);
+        }
+        return productInStock.getSalePrice();
     }
 }
