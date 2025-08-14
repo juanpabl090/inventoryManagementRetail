@@ -22,7 +22,7 @@ public class ProductRequestDto {
     private String name;
 
     @NotNull(message = "Description cannot be null")
-    @Size(min = 1, max = 50, message = "Description must be between 1 and 50 characters")
+    @Size(min = 1, max = 150, message = "Description must be between 1 and 50 characters")
     private String description;
 
     @NotNull(message = "Category cannot be null")
