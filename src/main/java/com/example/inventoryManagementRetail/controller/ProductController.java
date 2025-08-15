@@ -3,6 +3,7 @@ package com.example.inventoryManagementRetail.controller;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductPatchRequestDto;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductRequestDto;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductResponseDto;
+import com.example.inventoryManagementRetail.dto.ProductDto.ProductResponseWithDetailsDto;
 import com.example.inventoryManagementRetail.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,12 @@ public class ProductController {
     public ResponseEntity<List<ProductResponseDto>> getAllProducts() {
         List<ProductResponseDto> allProducts = productService.getAllProducts();
         return ResponseEntity.ok(allProducts);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<ProductResponseWithDetailsDto>> getAllProductsWithDetails(){
+        List<ProductResponseWithDetailsDto> productList = productService.getAllProductsWithDetails();
+        return ResponseEntity.ok(productList);
     }
 
     @PostMapping("/add")

@@ -3,6 +3,7 @@ package com.example.inventoryManagementRetail.service;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductPatchRequestDto;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductRequestDto;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductResponseDto;
+import com.example.inventoryManagementRetail.dto.ProductDto.ProductResponseWithDetailsDto;
 import com.example.inventoryManagementRetail.exception.BusinessValidationException;
 import com.example.inventoryManagementRetail.exception.DataPersistException;
 import com.example.inventoryManagementRetail.exception.DuplicateResourceException;
@@ -91,6 +92,21 @@ public class ProductService {
             List<ProductResponseDto> productDtos = products.stream().map(productMapper::convertToResponseDto).toList();
             log.info("Products retrieved successfully: count={}", productDtos.size());
             return productDtos;
+        } catch (DataAccessException e) {
+            log.error("Error retrieving products: error={}", e.getMessage(), e);
+            throw new DataPersistException("An error occurred while getting the products");
+        }
+    }
+
+    public List<ProductResponseWithDetailsDto> getAllProductsWithDetails() {
+        try {
+            List<Product> productsResponse = productRepository.findWithDetails();
+            if (productsResponse.isEmpty()) {
+                log.info("No Products Found");
+                return Collections.emptyList();
+            }
+            log.info("Products retrieved successfully: count={}", productsResponse.size());
+            return productsResponse.stream().map(productMapper::convertEntityToProductResponseWithDetailsDto).toList();
         } catch (DataAccessException e) {
             log.error("Error retrieving products: error={}", e.getMessage(), e);
             throw new DataPersistException("An error occurred while getting the products");
