@@ -1,8 +1,12 @@
 package com.example.inventoryManagementRetail.mapper;
 
+import com.example.inventoryManagementRetail.dto.CategoryDto.CategoryResponseDto;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductPatchRequestDto;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductRequestDto;
 import com.example.inventoryManagementRetail.dto.ProductDto.ProductResponseDto;
+import com.example.inventoryManagementRetail.dto.ProductDto.ProductResponseWithDetailsDto;
+import com.example.inventoryManagementRetail.dto.ProductTypeDto.ProductTypeResponseDto;
+import com.example.inventoryManagementRetail.dto.SupplierDto.SupplierResponseDto;
 import com.example.inventoryManagementRetail.model.Category;
 import com.example.inventoryManagementRetail.model.Product;
 import com.example.inventoryManagementRetail.model.ProductType;
@@ -99,6 +103,22 @@ public class ProductMapper {
                 .updatedDate(product.getUpdatedDate())
                 .supplierId(product.getSupplier().getId())
                 .productTypeId(product.getProductType().getId())
+                .build();
+    }
+
+    public ProductResponseWithDetailsDto convertEntityToProductResponseWithDetailsDto(Product product) {
+        return ProductResponseWithDetailsDto.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .category(new CategoryResponseDto(product.getCategory().getId(), product.getCategory().getName()))
+                .buyPrice(product.getBuyPrice())
+                .salePrice(product.getSalePrice())
+                .stock(product.getStock())
+                .createdDate(product.getCreatedDate())
+                .updatedDate(product.getUpdatedDate())
+                .supplier(new SupplierResponseDto(product.getSupplier().getId(), product.getSupplier().getName(), null))
+                .productType(new ProductTypeResponseDto(product.getProductType().getId(), product.getProductType().getName()))
                 .build();
     }
 }
