@@ -1,5 +1,7 @@
 package com.example.inventoryManagementRetail.dto.PurchaseDto;
 
+import com.example.inventoryManagementRetail.dto.ProductDto.ProductResponseDto;
+import com.example.inventoryManagementRetail.dto.SupplierDto.SupplierResponseDto;
 import com.example.inventoryManagementRetail.model.Product;
 import com.example.inventoryManagementRetail.model.Supplier;
 import lombok.AllArgsConstructor;
@@ -16,8 +18,8 @@ import java.time.LocalDateTime;
 @Data
 public class PurchaseResponseDto {
     private Long id;
-    private Product product;
-    private Supplier supplier;
+    private ProductResponseDto product;
+    private SupplierResponseDto supplier;
     private Long quantity;
     private BigDecimal amount;
     private LocalDateTime date;

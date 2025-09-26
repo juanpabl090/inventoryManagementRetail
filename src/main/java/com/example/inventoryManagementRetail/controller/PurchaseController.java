@@ -5,10 +5,9 @@ import com.example.inventoryManagementRetail.dto.PurchaseDto.PurchaseResponseDto
 import com.example.inventoryManagementRetail.service.PurchaseService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/purchase")
@@ -25,4 +24,8 @@ public class PurchaseController {
         return purchaseService.registerPurchase(purchaseRequestDto);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<PurchaseResponseDto>> all() {
+        return purchaseService.getAll();
+    }
 }

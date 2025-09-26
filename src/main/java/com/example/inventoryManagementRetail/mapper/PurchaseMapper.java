@@ -18,8 +18,6 @@ public class PurchaseMapper {
 
     public Purchase convertDtoToEntity(PurchaseRequestDto purchaseRequestDto) {
         return Purchase.builder()
-                .product(productMapper.convertToEntity(purchaseRequestDto.getProduct()))
-                .supplier(supplierMapper.convertToEntity(purchaseRequestDto.getSupplier()))
                 .quantity(purchaseRequestDto.getQuantity())
                 .amount(purchaseRequestDto.getAmount())
                 .date(purchaseRequestDto.getDate())
@@ -29,9 +27,13 @@ public class PurchaseMapper {
     public PurchaseResponseDto convertEntityToDto(Purchase purchase) {
         return PurchaseResponseDto.builder()
                 .id(purchase.getId())
-                .product(purchase.getProduct())
-                .supplier(purchase.getSupplier())
-                .quantity(purchase.getQuantity())
+                .product(purchase.getProduct() != null
+                        ? productMapper.convertToResponseDto(purchase.getProduct())
+                        : null
+                ).supplier(purchase.getSupplier() != null
+                        ? supplierMapper.convertToResponseDto(purchase.getSupplier())
+                        : null
+                ).quantity(purchase.getQuantity())
                 .amount(purchase.getAmount())
                 .date(purchase.getDate())
                 .build();
