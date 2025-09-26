@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collections;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -54,17 +56,19 @@ public class PurchaseService {
 
             // actualizar o crear Supplier
             ResponseEntity<SupplierResponseDto> supplierResponseDto = supplierService.findOrCreateSupplier(supplierRequestDto);
+            assert supplierResponseDto.getBody() != null;
             Supplier supplier = supplierMapper.convertResponseDtoToEntity(supplierResponseDto.getBody());
             SupplierPatchRequestDto supplierPatchRequestDto = supplierMapper.convertResponseDtoToPatchDto(supplierResponseDto.getBody());
             if (supplierResponseDto.getStatusCode() == HttpStatus.OK) {
                 supplierService.updatePatchSupplierByName(supplierResponseDto.getBody().getName(), supplierPatchRequestDto);
             }
 
-            //asignar el id del proveedor al producto
+            //asignar el ID del proveedor al producto
             productRequestDto.setSupplierId(supplierResponseDto.getBody().getId());
 
             // actualizar o crear producto
             ResponseEntity<ProductResponseDto> productResponseDto = productService.findOrCreateProduct(productRequestDto);
+            assert productResponseDto.getBody() != null;
             Product product = productMapper.convertResponseDtoToEntity(productResponseDto.getBody());
             ProductPatchRequestDto productPatchRequestDto = productMapper.convertResponseDtoToPatchDto(productResponseDto.getBody());
             if (productResponseDto.getStatusCode() == HttpStatus.OK) {
@@ -86,6 +90,25 @@ public class PurchaseService {
         } catch (DataAccessException e) {
             log.error("Error saving purchase: error={}", e.getMessage(), e);
             throw new DataPersistException("An error occurred while saving the purchase");
+        }
+    }
+
+    public ResponseEntity<List<PurchaseResponseDto>> getAll() {
+        try {
+            List<Purchase> purchaseList = purchaseRepository.findAll();
+            if (purchaseList.isEmpty()) {
+                log.warn("Purchase list is Empty");
+                return ResponseEntity.ok(Collections.emptyList());
+            }
+
+            List<PurchaseResponseDto> purchaseResponseDtoList = purchaseList.stream()
+                    .map(purchaseMapper::convertEntityToDto)
+                    .toList();
+            log.info("Purchase retrieve successfully");
+            return ResponseEntity.ok(purchaseResponseDtoList);
+        } catch (DataAccessException e) {
+            log.error("Error getting purchases list", e);
+            throw new RuntimeException(e);
         }
     }
 }
