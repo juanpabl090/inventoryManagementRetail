@@ -15,7 +15,5 @@ import java.util.List;
 @Builder
 public class SaleDetailsRequestDto {
     private List<ProductPatchRequestDto> productsList;
-    private BigDecimal amount; // total precio sin descuento aplicado a la venta
     private BigDecimal discount; // porcentaje de descuento que se va a aplicar la venta
-    private Long quantity;
 }

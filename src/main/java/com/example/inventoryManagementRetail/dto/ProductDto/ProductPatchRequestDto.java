@@ -23,4 +23,5 @@ public class ProductPatchRequestDto {
     private LocalDateTime updatedDate;
     private Long supplierId;
     private Long productTypeId;
+    private Long quantity;
 }
