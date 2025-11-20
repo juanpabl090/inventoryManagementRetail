@@ -20,7 +20,7 @@ public class SaleDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sale_id")
     @JsonIgnore
     private Sale sale;

@@ -8,6 +8,7 @@ import com.example.inventoryManagementRetail.dto.SalesDto.SaleResponseDto;
 import com.example.inventoryManagementRetail.exception.InsufficientResourcesException;
 import com.example.inventoryManagementRetail.mapper.ProductMapper;
 import com.example.inventoryManagementRetail.mapper.SaleDetailsMapper;
+import com.example.inventoryManagementRetail.mapper.SaleMapper;
 import com.example.inventoryManagementRetail.model.Sale;
 import com.example.inventoryManagementRetail.model.SaleDetails;
 import com.example.inventoryManagementRetail.repository.SaleDetailsRepository;
@@ -18,10 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -29,14 +27,16 @@ public class SaleService {
 
     private final SaleRepository saleRepository;
     private final SaleDetailsRepository saleDetailsRepository;
+    private final SaleMapper saleMapper;
     private final SaleDetailsMapper saleDetailsMapper;
     private final ProductService productService;
     private final ProductMapper productMapper;
 
 
-    public SaleService(SaleRepository saleRepository, SaleDetailsRepository saleDetailsRepository, SaleDetailsMapper saleDetailsMapper, ProductService productService, ProductMapper productMapper) {
+    public SaleService(SaleRepository saleRepository, SaleDetailsRepository saleDetailsRepository, SaleMapper saleMapper, SaleDetailsMapper saleDetailsMapper, ProductService productService, ProductMapper productMapper) {
         this.saleRepository = saleRepository;
         this.saleDetailsRepository = saleDetailsRepository;
+        this.saleMapper = saleMapper;
         this.saleDetailsMapper = saleDetailsMapper;
         this.productService = productService;
         this.productMapper = productMapper;
@@ -117,5 +117,17 @@ public class SaleService {
             unitPrice = unitPrice.subtract(discountAmount);
         }
         return unitPrice.multiply(new BigDecimal(quantity));
+    }
+
+    public List<SaleResponseDto> getSalesByDate(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null || start.isAfter(end)) {
+            throw new IllegalArgumentException();
+        }
+        List<Sale> saleList = saleRepository.findSalesWithDetailsAfter(start, end);
+        if (saleList.isEmpty()) {
+            log.info("There is not results with this parameters, start: {}, end: {}", start, end);
+            return Collections.emptyList();
+        }
+        return saleList.stream().map(saleMapper::saleEntityToSaleResponseDto).toList();
     }
 }
