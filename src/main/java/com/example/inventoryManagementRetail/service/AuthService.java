@@ -15,9 +15,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Slf4j
 @Service
 public class AuthService {
@@ -49,7 +46,7 @@ public class AuthService {
         }
     }
 
-    public RegisterResponse regiseter(RegisterRequest request) {
+    public RegisterResponse register(RegisterRequest request) {
         try {
             if (userRepository.findByUserName(request.getUserName()).isPresent()) {
                 throw new IllegalArgumentException("User Already Exists");

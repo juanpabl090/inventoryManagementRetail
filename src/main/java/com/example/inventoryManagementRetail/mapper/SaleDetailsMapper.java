@@ -18,8 +18,7 @@ public class SaleDetailsMapper {
     public SaleDetailsResponseDto saleDetailsEntityToResponseDto(SaleDetails saleDetails) {
         return SaleDetailsResponseDto.builder()
                 .id(saleDetails.getId())
-                .saleResponseDto(saleMapper.saleEntityToSaleResponseDto(saleDetails.getSale()))
-                .product(productMapper.convertEntityToPatch(saleDetails.getProduct()))
+                .product(productMapper.convertResponseDtoToPatchDto(productMapper.convertToResponseDto(saleDetails.getProduct())))
                 .amount(saleDetails.getAmount())
                 .discount(saleDetails.getDiscount())
                 .quantity(saleDetails.getQuantity())

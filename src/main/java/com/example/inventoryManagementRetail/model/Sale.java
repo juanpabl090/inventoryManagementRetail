@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Table(name = "sales")
 @Entity
@@ -22,4 +24,10 @@ public class Sale {
     private LocalDateTime date;
     @Column(precision = 8, scale = 2)
     private BigDecimal amount;
+    @OneToMany(
+            mappedBy = "sale",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private List<SaleDetails> saleDetails = new ArrayList<>();
 }
