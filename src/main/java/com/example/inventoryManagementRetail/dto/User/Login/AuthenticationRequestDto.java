@@ -1,4 +1,4 @@
-package com.example.inventoryManagementRetail.dto.User.login;
+package com.example.inventoryManagementRetail.dto.User.Login;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
