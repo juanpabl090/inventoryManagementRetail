@@ -1,4 +1,4 @@
-package com.example.inventoryManagementRetail.dto.User.login;
+package com.example.inventoryManagementRetail.dto.User.Login;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthenticationResponse {
-    private String token;
+    private String message;
 }

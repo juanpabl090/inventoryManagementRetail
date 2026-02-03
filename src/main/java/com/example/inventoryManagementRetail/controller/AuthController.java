@@ -1,16 +1,13 @@
 package com.example.inventoryManagementRetail.controller;
 
+import com.example.inventoryManagementRetail.dto.User.Login.AuthenticationRequestDto;
+import com.example.inventoryManagementRetail.dto.User.Login.AuthenticationResponse;
+import com.example.inventoryManagementRetail.dto.User.Me.MeResponse;
 import com.example.inventoryManagementRetail.dto.User.Register.RegisterRequest;
-import com.example.inventoryManagementRetail.dto.User.Register.RegisterResponse;
-import com.example.inventoryManagementRetail.dto.User.login.AuthenticationRequestDto;
-import com.example.inventoryManagementRetail.dto.User.login.AuthenticationResponse;
 import com.example.inventoryManagementRetail.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,14 +21,26 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody AuthenticationRequestDto request) {
-        AuthenticationResponse response = authService.login(request);
-        return ResponseEntity.ok(response);
+        return authService.login(request);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
-        RegisterResponse response = authService.register(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<AuthenticationResponse> register(@Valid @RequestBody RegisterRequest request) {
+        return authService.register(request);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<MeResponse> me() {
+        return authService.me();
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthenticationResponse> refreshToken(@CookieValue(name = "refreshToken", required = false) String refreshToken) {
+        return authService.refreshTokenExchange(refreshToken);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<AuthenticationResponse> logout(@CookieValue(name = "refreshToken", required = false) String refreshToken) {
+        return authService.logout(refreshToken);
+    }
 }

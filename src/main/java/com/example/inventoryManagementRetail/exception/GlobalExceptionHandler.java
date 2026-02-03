@@ -42,4 +42,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleInsufficientResourcesException(InsufficientResourcesException ex) {
         return ResponseEntity.status(HttpStatus.INSUFFICIENT_STORAGE).body(ex.getMessage());
     }
+
+    @ExceptionHandler(RefreshTokenException.class)
+    public ResponseEntity<String> handleRefreshTokenExpired(RefreshTokenException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    }
 }
