@@ -5,6 +5,7 @@ import com.example.inventoryManagementRetail.dto.User.Login.AuthenticationRespon
 import com.example.inventoryManagementRetail.dto.User.Me.MeResponse;
 import com.example.inventoryManagementRetail.dto.User.Register.RegisterRequest;
 import com.example.inventoryManagementRetail.exception.DuplicateResourceException;
+import com.example.inventoryManagementRetail.exception.RefreshTokenException;
 import com.example.inventoryManagementRetail.exception.ResourceNotFoundException;
 import com.example.inventoryManagementRetail.model.RefreshToken;
 import com.example.inventoryManagementRetail.model.User;
@@ -90,36 +91,56 @@ public class AuthService {
         if (refreshTokenValue == null || refreshTokenValue.isBlank()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthenticationResponse("refresh token missing"));
         }
-        RefreshToken refreshToken = refreshTokenService.findByToken(refreshTokenValue).orElseThrow(() -> new ResourceNotFoundException("Refresh token not found"));
-        refreshTokenService.verifyExpiration(refreshToken);
-        User user = refreshToken.getUser();
-        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUserName());
-        String newJwt = jwtUtils.generateToken(userDetails);
+        try {
+            RefreshToken refreshToken = refreshTokenService.findByToken(refreshTokenValue).orElseThrow(() -> new ResourceNotFoundException("Refresh token not found"));
 
-        refreshTokenService.deleteByUser(user);
-        RefreshToken newRefresh = refreshTokenService.createRefreshToken(user);
+            refreshTokenService.verifyExpiration(refreshToken);
 
-        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", newRefresh.getToken())
-                .httpOnly(true)
-                .secure(false)
-                .sameSite("Lax")
-                .path("/")
-                .maxAge(Duration.between(Instant.now(), newRefresh.getExpiryDate()).getSeconds())
-                .build();
+            User user = refreshToken.getUser();
+            UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUserName());
+            String newJwt = jwtUtils.generateToken(userDetails);
 
-        ResponseCookie newAccessCookie = ResponseCookie.from("token", newJwt)
-                .httpOnly(true)
-                .secure(false)
-                .sameSite("Lax")
-                .path("/")
-                .maxAge(900)
-                .build();
+            refreshTokenService.deleteByUser(user);
+            RefreshToken newRefresh = refreshTokenService.createRefreshToken(user);
 
-        return ResponseEntity.ok().headers(headers -> {
-                    headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-                    headers.add(HttpHeaders.SET_COOKIE, newAccessCookie.toString());
-                })
-                .body(new AuthenticationResponse("Refresh token successfully"));
+            ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", newRefresh.getToken())
+                    .httpOnly(true)
+                    .secure(false)
+                    .sameSite("Lax")
+                    .path("/")
+                    .maxAge(Duration.between(Instant.now(), newRefresh.getExpiryDate()).getSeconds())
+                    .build();
+
+            ResponseCookie newAccessCookie = ResponseCookie.from("token", newJwt)
+                    .httpOnly(true)
+                    .secure(false)
+                    .sameSite("Lax")
+                    .path("/")
+                    .maxAge(900)
+                    .build();
+
+            return ResponseEntity.ok().headers(headers -> {
+                        headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+                        headers.add(HttpHeaders.SET_COOKIE, newAccessCookie.toString());
+                    })
+                    .body(new AuthenticationResponse("Refresh token successfully"));
+        } catch (ResourceNotFoundException | RefreshTokenException e) {
+            ResponseCookie clearTokenCookie = ResponseCookie.from("token", "")
+                    .httpOnly(true)
+                    .path("/")
+                    .maxAge(0)
+                    .build();
+
+            ResponseCookie clearRefreshCookie = ResponseCookie.from("refreshToken", "")
+                    .httpOnly(true)
+                    .path("/")
+                    .maxAge(0)
+                    .build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .header(HttpHeaders.SET_COOKIE, clearTokenCookie.toString())
+                    .header(HttpHeaders.SET_COOKIE, clearRefreshCookie.toString())
+                    .body(new AuthenticationResponse("Token expired or invalid"));
+        }
     }
 
     public ResponseEntity<AuthenticationResponse> register(RegisterRequest request) {
